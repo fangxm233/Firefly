@@ -19,7 +19,7 @@ namespace Firefly
     {
         public static RgbaFloat[] Buff;
         public static Color32 Color;
-        public static int Width, Height;
+        public static uint Width, Height;
         public static RenderType RenderType;
 
         public static Camera Camera;
@@ -28,7 +28,7 @@ namespace Firefly
 
         private static Random random = new Random();
 
-        public static void StartRender(int width, int height, Color32 color, RgbaFloat[] buff, RenderType renderType)
+        public static void StartRender(uint width, uint height, Color32 color, RgbaFloat[] buff, RenderType renderType)
         {
             Width = width;
             Height = height;
@@ -42,33 +42,33 @@ namespace Firefly
 
         public static void Draw()
         {
-            for (int i = 0; i < Entities.Length; i++)
-            {
-                Entity entity = Entities[i];
-                Mesh mesh = Entities[i].Mesh;
-                entity.CalculateMatrix();
-                for (int j = 0; j + 2 < mesh.Triangles.Length; j += 3)
-                {
-                    if (!Canvas.BackFaceCulling(entity.ToWorld(mesh.GetPoint(j)).Point,
-                        entity.ToWorld(mesh.GetPoint(j + 1)).Point,
-                        entity.ToWorld(mesh.GetPoint(j + 2)).Point))
-                    {
-                        Canvas.DrawTrangle(
-                            Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j))),
-                            Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j + 1))),
-                            Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j + 2))));
-                    }
-                }
-            }
+            //for (int i = 0; i < Entities.Length; i++)
+            //{
+            //    Entity entity = Entities[i];
+            //    Mesh mesh = Entities[i].Mesh;
+            //    entity.CalculateMatrix();
+            //    for (int j = 0; j + 2 < mesh.Triangles.Length; j += 3)
+            //    {
+            //        if (!Canvas.BackFaceCulling(entity.ToWorld(mesh.GetPoint(j)).Point,
+            //            entity.ToWorld(mesh.GetPoint(j + 1)).Point,
+            //            entity.ToWorld(mesh.GetPoint(j + 2)).Point))
+            //        {
+            //            Canvas.DrawTrangle(
+            //                Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j))),
+            //                Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j + 1))),
+            //                Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j + 2))));
+            //        }
+            //    }
+            //}
 
             //Canvas.DrawTrangle(
-            //    new VertexInt(new Vector2Int(random.Next(0, 513), random.Next(0, 513)), new Color32(1, 0, 0)),
-            //    new VertexInt(new Vector2Int(random.Next(0, 513), random.Next(0, 513)), new Color32(0, 1, 0)),
-            //    new VertexInt(new Vector2Int(random.Next(0, 513), random.Next(0, 513)), new Color32(0, 0, 1)));
+            //    new VertexInt(new Vector2Int(random.Next(0, 513), random.Next(0, 513)), new Color32(255, 0, 0)),
+            //    new VertexInt(new Vector2Int(random.Next(0, 513), random.Next(0, 513)), new Color32(0, 255, 0)),
+            //    new VertexInt(new Vector2Int(random.Next(0, 513), random.Next(0, 513)), new Color32(0, 0, 255)));
 
-            //Canvas.DrawTrangle(new VertexInt(new Vector2Int(476, 326), new Color32(1, 0, 0)),
-            //    new VertexInt(new Vector2Int(325, 117), new Color32(0, 1, 0)),
-            //    new VertexInt(new Vector2Int(109, 459), new Color32(0, 0, 1)));
+            Canvas.DrawTrangle(new VertexInt(new Vector2Int(256, 128), new Color32(255, 0, 0)),
+                new VertexInt(new Vector2Int(128, 384), new Color32(0, 255, 0)),
+                new VertexInt(new Vector2Int(384, 384), new Color32(0, 0, 255)));
         }
 
 

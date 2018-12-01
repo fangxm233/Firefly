@@ -7,7 +7,7 @@ namespace Firefly.Render
 {
     public class Canvas
     {
-        public static int Width, Height;
+        public static uint Width, Height;
 
         public static void DrawTrangle(VertexInt v1, VertexInt v2, VertexInt v3)
         {

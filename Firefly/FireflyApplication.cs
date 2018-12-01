@@ -44,7 +44,7 @@ namespace Firefly
 
             _fb = new RgbaFloat[Width * Height];
             _color = new Color32(0, 0, 0);
-            Renderer.StartRender(512, 512, _color, _fb, RenderType.GouraudShading);
+            Renderer.StartRender(Width, Height, _color, _fb, RenderType.GouraudShading);
 
             Renderer.Camera = new Camera();
             Renderer.Entities = new[]{
