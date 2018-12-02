@@ -36,7 +36,7 @@ namespace Firefly.Render
                 for (int scanlineY = v1.Point.Y; scanlineY <= v2.Point.Y; scanlineY++)
                 {
                     float t = (float)(scanlineY - v1.Point.Y) / (v2.Point.Y - v1.Point.Y);
-                    DrawFlatLine(Mathf.Lerp(v1, v2, t), Mathf.Lerp(v1, v3, t));
+                    DrawFlatLine(Mathf.Lerp(v2, v1, t), Mathf.Lerp(v3, v1, t));
                 }
             else
                 for (int scanlineY = v2.Point.Y; scanlineY <= v1.Point.Y; scanlineY++)
@@ -59,10 +59,17 @@ namespace Firefly.Render
                 v1.Color = v2.Color;
                 v2.Color = c;
             }
-            float dx = x1 - x0;
+            float dx = x1 - x0 + float.Epsilon;
 
             for (int i = x0; i <= x1; i++)
+            {
+                if (i == 256)
+                {
+
+                }
+
                 SetPixel(i, v1.Point.Y, Mathf.Lerp(v1.Color, v2.Color, (i - x0) / dx));
+            }
         }
 
         public static void DrawLine(Vector2 v1, Vector2 v2)
@@ -99,12 +106,16 @@ namespace Firefly.Render
 
         private static void SetPixel(int x, int y)
         {
-            Renderer.Buff[y * Width + x] = Renderer.Color.ToRgbaFloat();
+            if (x < 0 || y < 0) return;
+            if (x >= Width || y >= Height) return;
+            Renderer.Buff[(Height - y - 1) * Width + x] = Renderer.Color.ToRgbaFloat();
         }
 
         private static void SetPixel(int x, int y, Color32 color)
         {
-            Renderer.Buff[y * Width + x] = color.ToRgbaFloat();
+            if (x < 0 || y < 0) return;
+            if (x >= Width || y >= Height) return;
+            Renderer.Buff[(Height - y - 1) * Width + x] = color.ToRgbaFloat();
         }
 
         /// 小到大排序

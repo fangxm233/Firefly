@@ -88,7 +88,7 @@ namespace Firefly
                 if (!_window.Exists) { break; }
                 for (int i = 0; i < _fb.Length; i++)
                 {
-                    _fb[i] = new RgbaFloat();
+                    _fb[i] = new RgbaFloat(1, 1, 1, 1);
                 }
                 RenderFrame();
             }

@@ -35,8 +35,8 @@ namespace Firefly.Math
             return new Color32(a.R + (b.R - a.R) * t,
                 a.G + (b.G - a.G) * t, a.B + (b.B - a.B) * t, a.A + (b.A - a.A) * t);
         }
-        public static Vector3 Lerp(Vector3 a, Vector3 b, float t) =>
-            new Vector3(Lerp(a.X, b.X, t), Lerp(a.Y, b.Y, t), Lerp(a.Z, b.Z, t));
+        //public static Vector3 Lerp(Vector3 a, Vector3 b, float t) =>
+        //    new Vector3(Lerp(a.X, b.X, t), Lerp(a.Y, b.Y, t), Lerp(a.Z, b.Z, t));
 
         public static Vector2Int Lerp(Vector2Int a, Vector2Int b, float t) =>
             new Vector2Int(Lerp(a.X, b.X, t), Lerp(a.Y, b.Y, t));
@@ -61,7 +61,7 @@ namespace Firefly.Math
             return new Vertex
             {
                 Color = Lerp(a.Color, b.Color, t),
-                Point = Lerp(a.Point, b.Point, t)
+                Point = Vector3.Lerp(a.Point, b.Point, t)
             };
         }
         public static VertexInt Lerp(VertexInt a, VertexInt b, float t)

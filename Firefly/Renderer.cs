@@ -66,9 +66,13 @@ namespace Firefly
             //    new VertexInt(new Vector2Int(random.Next(0, 513), random.Next(0, 513)), new Color32(0, 255, 0)),
             //    new VertexInt(new Vector2Int(random.Next(0, 513), random.Next(0, 513)), new Color32(0, 0, 255)));
 
-            Canvas.DrawTrangle(new VertexInt(new Vector2Int(256, 128), new Color32(255, 0, 0)),
-                new VertexInt(new Vector2Int(128, 384), new Color32(0, 255, 0)),
-                new VertexInt(new Vector2Int(384, 384), new Color32(0, 0, 255)));
+            //Canvas.DrawTrangle(new VertexInt(new Vector2Int(256, 128), new Color32(255, 0, 0)),
+            //    new VertexInt(new Vector2Int(128, 384), new Color32(0, 255, 0)),
+            //    new VertexInt(new Vector2Int(384, 384), new Color32(0, 0, 255)));
+
+            Canvas.DrawTrangle(new VertexInt(new Vector2Int(256, 128), new Color32(0, 127, 127)),
+                new VertexInt(new Vector2Int(128, 384), new Color32(0, 127, 127)),
+                new VertexInt(new Vector2Int(0, 512), new Color32(0, 127, 127)));
         }
 
 
