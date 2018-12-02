@@ -42,24 +42,24 @@ namespace Firefly
 
         public static void Draw()
         {
-            //for (int i = 0; i < Entities.Length; i++)
-            //{
-            //    Entity entity = Entities[i];
-            //    Mesh mesh = Entities[i].Mesh;
-            //    entity.CalculateMatrix();
-            //    for (int j = 0; j + 2 < mesh.Triangles.Length; j += 3)
-            //    {
-            //        if (!Canvas.BackFaceCulling(entity.ToWorld(mesh.GetPoint(j)).Point,
-            //            entity.ToWorld(mesh.GetPoint(j + 1)).Point,
-            //            entity.ToWorld(mesh.GetPoint(j + 2)).Point))
-            //        {
-            //            Canvas.DrawTrangle(
-            //                Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j))),
-            //                Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j + 1))),
-            //                Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j + 2))));
-            //        }
-            //    }
-            //}
+            for (int i = 0; i < Entities.Length; i++)
+            {
+                Entity entity = Entities[i];
+                Mesh mesh = Entities[i].Mesh;
+                entity.CalculateMatrix();
+                for (int j = 0; j + 2 < mesh.Triangles.Length; j += 3)
+                {
+                    if (!Canvas.BackFaceCulling(entity.ToWorld(mesh.GetPoint(j)).Point,
+                        entity.ToWorld(mesh.GetPoint(j + 1)).Point,
+                        entity.ToWorld(mesh.GetPoint(j + 2)).Point))
+                    {
+                        Canvas.DrawTrangle(
+                            Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j))),
+                            Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j + 1))),
+                            Canvas.ToScreen(entity.ToWorld(mesh.GetPoint(j + 2))));
+                    }
+                }
+            }
 
             //Canvas.DrawTrangle(
             //    new VertexInt(new Vector2Int(random.Next(0, 513), random.Next(0, 513)), new Color32(255, 0, 0)),
@@ -70,9 +70,9 @@ namespace Firefly
             //    new VertexInt(new Vector2Int(128, 384), new Color32(0, 255, 0)),
             //    new VertexInt(new Vector2Int(384, 384), new Color32(0, 0, 255)));
 
-            Canvas.DrawTrangle(new VertexInt(new Vector2Int(256, 128), new Color32(0, 127, 127)),
-                new VertexInt(new Vector2Int(128, 384), new Color32(0, 127, 127)),
-                new VertexInt(new Vector2Int(0, 512), new Color32(0, 127, 127)));
+            //Canvas.DrawTrangle(new VertexInt(new Vector2Int(256, 128), new Color32(0, 127, 127)),
+            //    new VertexInt(new Vector2Int(128, 384), new Color32(0, 127, 127)),
+            //    new VertexInt(new Vector2Int(0, 512), new Color32(0, 127, 127)));
         }
 
 

@@ -24,13 +24,8 @@ namespace RayTracer.Shaders
         public Vector4 FS(FragmentInput input)
         {
             Vector4 color = ShaderBuiltins.Sample(SourceTex, SourceSampler, input.TexCoords);
-            return new Vector4(ToSrgb(color.XYZ()), 1f);
-        }
-
-        private static Vector3 ToSrgb(Vector3 color)
-        {
-            color = Vector3.Max(color, Vector3.Zero);
-            return Vector3.Max(1.055f * ShaderBuiltins.Pow(color, new Vector3(0.41666667f)) - new Vector3(0.055f), Vector3.Zero);
+            color.W = 1;
+            return color;
         }
     }
 
