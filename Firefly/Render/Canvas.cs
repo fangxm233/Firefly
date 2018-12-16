@@ -1,13 +1,13 @@
-﻿using System;
-using System.Numerics;
-using Firefly.Math;
-using Firefly.Render.Structure;
+﻿using System.Numerics;
+using FireflyUtility.Math;
+using FireflyUtility.Structure;
+using Veldrid;
 
 namespace Firefly.Render
 {
     public class Canvas
     {
-        public static uint Width, Height;
+        public const uint Width = FireflyApplication.Width, Height = FireflyApplication.Height;
 
         public static void DrawTrangle(VertexInt v1, VertexInt v2, VertexInt v3)
         {
@@ -18,32 +18,33 @@ namespace Firefly.Render
 
             Sort(ref v1, ref v2, ref v3);
             if (v2.Point.Y == v3.Point.Y)
-                FillFlatTriangle(v1, v2, v3, true);
+                FillFlatTriangle(v1, v2, v3, false);
             else if (v1.Point.Y == v2.Point.Y)
-                FillFlatTriangle(v3, v1, v2, false);
+                FillFlatTriangle(v3, v1, v2, true);
             else
             {
                 float t = (float) (v2.Point.Y - v1.Point.Y) / (v3.Point.Y - v1.Point.Y);
                 VertexInt v4 = Mathf.Lerp(v1, v3, t);
-                FillFlatTriangle(v1, v2, v4, true);
-                FillFlatTriangle(v3, v2, v4, false);
+                FillFlatTriangle(v1, v2, v4, false);
+                FillFlatTriangle(v3, v2, v4, true);
             }
         }
 
-        private static void FillFlatTriangle(VertexInt v1, VertexInt v2, VertexInt v3, bool isBottom)
+        private static void FillFlatTriangle(VertexInt v1, VertexInt v2, VertexInt v3, bool isFlatBottom)
         {
-            if (isBottom)
-                for (int scanlineY = v1.Point.Y; scanlineY <= v2.Point.Y; scanlineY++)
-                {
-                    float t = (float)(scanlineY - v1.Point.Y) / (v2.Point.Y - v1.Point.Y);
-                    DrawFlatLine(Mathf.Lerp(v2, v1, t), Mathf.Lerp(v3, v1, t));
-                }
-            else
+            if (isFlatBottom)
                 for (int scanlineY = v2.Point.Y; scanlineY <= v1.Point.Y; scanlineY++)
                 {
                     float t = (float)(scanlineY - v2.Point.Y) / (v1.Point.Y - v2.Point.Y);
                     DrawFlatLine(Mathf.Lerp(v1, v2, t), Mathf.Lerp(v1, v3, t));
                 }
+            else
+                for (int scanlineY = v1.Point.Y; scanlineY <= v2.Point.Y; scanlineY++)
+                {
+                    float t = (float)(scanlineY - v1.Point.Y) / (v2.Point.Y - v1.Point.Y);
+                    DrawFlatLine(Mathf.Lerp(v1, v2, t), Mathf.Lerp(v1, v3, t));
+                }
+
         }
 
         private static void DrawFlatLine(VertexInt v1, VertexInt v2)
@@ -55,21 +56,14 @@ namespace Firefly.Render
                 int t = x0;
                 x0 = x1;
                 x1 = t;
-                Color32 c = v1.Color;
+                Vector4 c = v1.Color;
                 v1.Color = v2.Color;
                 v2.Color = c;
             }
             float dx = x1 - x0 + float.Epsilon;
 
             for (int i = x0; i <= x1; i++)
-            {
-                if (i == 256)
-                {
-
-                }
-
-                SetPixel(i, v1.Point.Y, Mathf.Lerp(v1.Color, v2.Color, (i - x0) / dx));
-            }
+                SetPixel(i, v1.Point.Y, Vector4.Lerp(v1.Color, v2.Color, (i - x0) / dx));
         }
 
         public static void DrawLine(Vector2 v1, Vector2 v2)
@@ -108,14 +102,21 @@ namespace Firefly.Render
         {
             if (x < 0 || y < 0) return;
             if (x >= Width || y >= Height) return;
-            Renderer.Buff[(Height - y - 1) * Width + x] = Renderer.Color.ToRgbaFloat();
+            Renderer.Buff[y * Width + x] = Renderer.Color.ToRgbaFloat();
         }
 
         private static void SetPixel(int x, int y, Color32 color)
         {
             if (x < 0 || y < 0) return;
             if (x >= Width || y >= Height) return;
-            Renderer.Buff[(Height - y - 1) * Width + x] = color.ToRgbaFloat();
+            Renderer.Buff[y * Width + x] = color.ToRgbaFloat();
+        }
+
+        public static void SetPixel(int x, int y, Vector4 color)
+        {
+            if (x < 0 || y < 0) return;
+            if (x >= Width || y >= Height) return;
+            Renderer.Buff[y * Width + x] = ToRgbaFloat(color);
         }
 
         /// 小到大排序
@@ -144,6 +145,16 @@ namespace Firefly.Render
 
         public static Vector2Int ToScreen(Vector3 pos) => 
             new Vector2Int((int)(pos.X * (1 / pos.Z) * Width + Width / 2), (int)(pos.Y * (1 / pos.Z) * Height + Height / 2));
+
+        public static Vector2Int ToScreen(Vector4 pos) =>
+                new Vector2Int((int)(pos.X * Width / (2 * pos.W) + Width / 2), (int)(pos.Y * Height / (2 * pos.W) + Height / 2));
+        //new Vector2Int((int)(pos.X* (1 / pos.Z) * Width + Width / 2), (int) (pos.Y* (1 / pos.Z) * Height + Height / 2));
+
+        public static Vector2Int ToScreenO(Vector4 pos) =>
+            new Vector2Int((int)(pos.X * Width / 2 + Width / 2), (int)(pos.Y * Height / 2 + Height / 2));
+
         public static VertexInt ToScreen(Vertex p) => new VertexInt() { Point = ToScreen(p.Point), Color = p.Color };
+
+        public static RgbaFloat ToRgbaFloat(Vector4 color) => new RgbaFloat(color.X, color.Y, color.Z, color.W);
     }
 }

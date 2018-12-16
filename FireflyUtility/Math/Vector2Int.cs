@@ -1,4 +1,4 @@
-﻿namespace Firefly.Math
+﻿namespace FireflyUtility.Math
 {
     public struct Vector2Int
     {

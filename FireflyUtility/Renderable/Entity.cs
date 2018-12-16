@@ -4,16 +4,17 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Firefly.Render.Structure;
+using FireflyUtility.Structure;
+using FireflyUtility.Math;
 
-namespace Firefly.Render.Renderable
+namespace FireflyUtility.Renderable
 {
     public class Entity
     {
         public Vector3 Position, PositionToCamera, Rotation, RotationToCamera;
         public Mesh Mesh;
 
-        private Matrix4x4 matrix;
+        private Matrix4x4 _matrix;
 
         public Entity(Vector3 position, Vector3 rotation, Mesh mesh)
         {
@@ -25,8 +26,8 @@ namespace Firefly.Render.Renderable
         }
 
         public void CalculateMatrix() => 
-            matrix = Matrix4x4.Transpose(Math.Mathf.GetRotationMatrix(Rotation) * Matrix4x4.CreateTranslation(Position));
+            _matrix = Matrix4x4.Transpose(Mathf.GetRotationMatrix(Rotation) * Matrix4x4.CreateTranslation(Position));
 
-        public Vertex ToWorld(Vertex v) => new Vertex() { Point = Math.Mathf.MulVector3AndMatrix4x4(v.Point, matrix), Color = v.Color };
+        public Vertex ToWorld(Vertex v) => new Vertex() { Point = Mathf.MulVector3AndMatrix4x4(v.Point, _matrix), Color = v.Color };
     }
 }

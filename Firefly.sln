@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.136
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28315.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Firefly", "Firefly\Firefly.csproj", "{40335A31-E831-4F1E-A4C2-09BA909363A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Firefly", "Firefly\Firefly.csproj", "{40335A31-E831-4F1E-A4C2-09BA909363A9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderLib", "ShaderLib\ShaderLib.csproj", "{2CF7E391-C299-40D4-84F0-453E10D0B32B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireflyUtility", "FireflyUtility\FireflyUtility.csproj", "{EAF48EDE-07BE-42E3-834D-5502F7D9C43B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShaderGen", "ShaderGen\ShaderGen.csproj", "{4EF71615-A229-459E-9FD2-EF21C078E712}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{40335A31-E831-4F1E-A4C2-09BA909363A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40335A31-E831-4F1E-A4C2-09BA909363A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40335A31-E831-4F1E-A4C2-09BA909363A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CF7E391-C299-40D4-84F0-453E10D0B32B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CF7E391-C299-40D4-84F0-453E10D0B32B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CF7E391-C299-40D4-84F0-453E10D0B32B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CF7E391-C299-40D4-84F0-453E10D0B32B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAF48EDE-07BE-42E3-834D-5502F7D9C43B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAF48EDE-07BE-42E3-834D-5502F7D9C43B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAF48EDE-07BE-42E3-834D-5502F7D9C43B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAF48EDE-07BE-42E3-834D-5502F7D9C43B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EF71615-A229-459E-9FD2-EF21C078E712}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EF71615-A229-459E-9FD2-EF21C078E712}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EF71615-A229-459E-9FD2-EF21C078E712}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EF71615-A229-459E-9FD2-EF21C078E712}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

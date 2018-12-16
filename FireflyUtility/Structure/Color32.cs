@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
-using Firefly.Math;
+using FireflyUtility.Math;
 using Veldrid;
 
-namespace Firefly.Render
+namespace FireflyUtility.Structure
 {
     public struct Color32
     {

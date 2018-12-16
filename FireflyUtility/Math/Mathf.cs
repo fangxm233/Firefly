@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
-using Firefly.Render;
-using Firefly.Render.Structure;
+using FireflyUtility.Structure;
 
-namespace Firefly.Math
+namespace FireflyUtility.Math
 {
-    class Mathf
+    public class Mathf
     {
         public static float Range(float v, float min, float max) => v <= min ? min :
             v >= max ? max : v;
@@ -19,10 +18,15 @@ namespace Firefly.Math
         public static Matrix4x4 GetRotationMatrix(Vector3 v) => 
             Matrix4x4.CreateRotationY(v.Y) * Matrix4x4.CreateRotationX(v.X) * Matrix4x4.CreateRotationZ(v.Z);
 
-        public static Vector3 MulVector3AndMatrix4x4(Vector3 v, Matrix4x4 matrix) => new Vector3(
-                v.X * matrix.M11 + v.Y * matrix.M12 + v.Z * matrix.M13 + matrix.M14,
-                v.X * matrix.M21 + v.Y * matrix.M22 + v.Z * matrix.M23 + matrix.M24,
-                v.X * matrix.M31 + v.Y * matrix.M32 + v.Z * matrix.M33 + matrix.M34);
+        public static Vector4 MulVector3AndMatrix4x4(Vector4 v, Matrix4x4 m) => new Vector4(
+                v.X * m.M11 + v.Y * m.M12 + v.Z * m.M13 + v.W * m.M14,
+                v.X * m.M21 + v.Y * m.M22 + v.Z * m.M23 + v.W * m.M24,
+                v.X * m.M31 + v.Y * m.M32 + v.Z * m.M33 + v.W * m.M34,
+                v.X * m.M41 + v.Y * m.M42 + v.Z * m.M43 + v.W * m.M44);
+        public static Vector3 MulVector3AndMatrix4x4(Vector3 v, Matrix4x4 m) => new Vector3(
+                v.X * m.M11 + v.Y * m.M12 + v.Z * m.M13 + m.M14,
+                v.X * m.M21 + v.Y * m.M22 + v.Z * m.M23 + m.M24,
+                v.X * m.M31 + v.Y * m.M32 + v.Z * m.M33 + m.M34);
 
         #region Lerp
 
@@ -54,13 +58,13 @@ namespace Firefly.Math
                 return a;
             if (t >= 1)
                 return b;
-            return (int) ((b * t + (1 - t) * a) + 0.5);
+            return (int) (b * t + (1 - t) * a + 0.5);
         }
         public static Vertex Lerp(Vertex a, Vertex b, float t)
         {
             return new Vertex
             {
-                Color = Lerp(a.Color, b.Color, t),
+                Color = Vector4.Lerp(a.Color, b.Color, t),
                 Point = Vector3.Lerp(a.Point, b.Point, t)
             };
         }
@@ -69,7 +73,7 @@ namespace Firefly.Math
             return new VertexInt
             {
                 Point = Lerp(a.Point, b.Point, t),
-                Color = Lerp(a.Color, b.Color, t)
+                Color = Vector4.Lerp(a.Color, b.Color, t)
             };
         }
 

@@ -1,4 +1,4 @@
-﻿namespace Firefly.Render.Structure
+﻿namespace FireflyUtility.Structure
 {
     public class Mesh
     {

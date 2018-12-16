@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Firefly.Render.Renderable
+namespace FireflyUtility.Renderable
 {
-    public class Camera
+    public class Light
     {
-        public Vector3 Position;
     }
 }

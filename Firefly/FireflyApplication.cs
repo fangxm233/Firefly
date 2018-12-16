@@ -3,12 +3,13 @@ using System.Drawing;
 using System.IO;
 using System.Numerics;
 using System.Timers;
-using Firefly.Render;
-using Firefly.Render.Renderable;
-using Firefly.Render.Structure;
+using FireflyUtility.Renderable;
+using FireflyUtility.Structure;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
+using ShaderGen;
+using System.Diagnostics;
 
 namespace Firefly
 {
@@ -19,45 +20,52 @@ namespace Firefly
         public const uint ViewScale = 1;
 
         private Sdl2Window _window;
-        private GraphicsDevice _gd;
-        private CommandList _cl;
+        private GraphicsDevice _graphicsDevice;
+        private CommandList _commandList;
         private Texture _transferTex;
         private TextureView _texView;
-        private RgbaFloat[] _fb;
+        private RgbaFloat[] _buff;
         private ResourceSet _graphicsSet;
         private Pipeline _graphicsPipeline;
 
         private Color32 _color;
-        private int FrameCount;
+        private int _frameCount;
 
         public void Run()
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            string path = @"Shader\TestShader.cs";
+            ShaderGenerator.CompleShader(new System.Collections.Generic.List<string>() { path });
+            stopwatch.Stop();
+            Console.WriteLine($"Shader编译完成，耗时: {stopwatch.ElapsedMilliseconds} 毫秒");
+
             GraphicsBackend backend = VeldridStartup.GetPlatformDefaultBackend();
-            
+
             VeldridStartup.CreateWindowAndGraphicsDevice(
                 new WindowCreateInfo(100, 100, (int)(Width * ViewScale), (int)(Height * ViewScale), WindowState.Normal, "Firefly"),
                 new GraphicsDeviceOptions(debug: false, swapchainDepthFormat: null, syncToVerticalBlank: false),
                 backend,
                 out _window,
-                out _gd);
+                out _graphicsDevice);
             CreateDeviceResources();
 
-            _fb = new RgbaFloat[Width * Height];
+            _buff = new RgbaFloat[Width * Height];
             _color = new Color32(0, 0, 0);
-            Renderer.StartRender(Width, Height, _color, _fb, RenderType.GouraudShading);
+            Renderer.StartRender(_color, _buff, RenderType.GouraudShading);
 
             Renderer.Camera = new Camera();
             Renderer.Entities = new[]{
-                new Entity(new Vector3(0, 0, 3), new Vector3(0, 0, 0), new Mesh(new []
+                new Entity(new Vector3(0, 0, 2), new Vector3(5.980089f, 5.980089f, 5.980089f), new Mesh(new []
                 {
-                    new Vertex(new Vector3(-0.5f , 0.5f , -0.5f ), Color.FromArgb(255, 82, 188)),
-                    new Vertex(new Vector3(0.5f , 0.5f , -0.5f ), Color.FromArgb(82, 212, 255)),
-                    new Vertex(new Vector3(-0.5f , -0.5f , -0.5f ), Color.FromArgb(82, 255, 94)),
-                    new Vertex(new Vector3(0.5f , -0.5f , -0.5f ), Color.FromArgb(255, 237, 82)),
-                    new Vertex(new Vector3(-0.5f , 0.5f , 0.5f ), Color.FromArgb(255, 237, 82)),
-                    new Vertex(new Vector3(0.5f , 0.5f , 0.5f ), Color.FromArgb(82, 255, 94)),
-                    new Vertex(new Vector3(-0.5f , -0.5f , 0.5f ), Color.FromArgb(82, 212, 255)),
-                    new Vertex(new Vector3(0.5f , -0.5f , 0.5f ), Color.FromArgb(255, 82, 188))
+                    new Vertex(new Vector3(-0.5f , 0.5f , -0.5f), Color.FromArgb(255, 82, 188)),
+                    new Vertex(new Vector3(0.5f , 0.5f , -0.5f), Color.FromArgb(82, 212, 255)),
+                    new Vertex(new Vector3(-0.5f , -0.5f , -0.5f), Color.FromArgb(82, 255, 94)),
+                    new Vertex(new Vector3(0.5f , -0.5f , -0.5f), Color.FromArgb(255, 237, 82)),
+                    new Vertex(new Vector3(-0.5f , 0.5f , 0.5f), Color.FromArgb(255, 237, 82)),
+                    new Vertex(new Vector3(0.5f , 0.5f , 0.5f), Color.FromArgb(82, 255, 94)),
+                    new Vertex(new Vector3(-0.5f , -0.5f , 0.5f), Color.FromArgb(82, 212, 255)),
+                    new Vertex(new Vector3(0.5f , -0.5f , 0.5f), Color.FromArgb(255, 82, 188))
                 }, new int[]
                 {
                     0, 1, 2,
@@ -86,49 +94,50 @@ namespace Firefly
             {
                 _window.PumpEvents();
                 if (!_window.Exists) { break; }
-                for (int i = 0; i < _fb.Length; i++)
+                for (int i = 0; i < _buff.Length; i++)
                 {
-                    _fb[i] = new RgbaFloat(1, 1, 1, 1);
+                    _buff[i] = new RgbaFloat(1, 1, 1, 1);
                 }
+                //System.Threading.Thread.Sleep(10);
                 RenderFrame();
             }
 
-            _gd.Dispose();
+            _graphicsDevice.Dispose();
 
         }
 
         private void Timer1_Elapsed(object sender, ElapsedEventArgs e)
         {
-            _window.Title = "FPS:" + FrameCount;
-            FrameCount = 0;
+            _window.Title = "FPS:" + _frameCount;
+            _frameCount = 0;
         }
 
         private void RenderFrame()
         {
-            FrameCount++;
-            _cl.Begin();
-            
-            Renderer.Entities[0].Rotation += new Vector3(0.01f, 0.01f, 0.01f);
+            _frameCount++;
+            _commandList.Begin();
+
+            Renderer.Entities[0].Rotation += new Vector3(0.005f, 0.005f, 0.005f);
             Renderer.Draw();
 
-            fixed (RgbaFloat* pixelDataPtr = _fb)
+            fixed (RgbaFloat* pixelDataPtr = _buff)
             {
-                _gd.UpdateTexture(_transferTex, (IntPtr)pixelDataPtr, Width * Height * (uint)sizeof(RgbaFloat), 0, 0, 0, Width, Height, 1, 0, 0);
+                _graphicsDevice.UpdateTexture(_transferTex, (IntPtr)pixelDataPtr, Width * Height * (uint)sizeof(RgbaFloat), 0, 0, 0, Width, Height, 1, 0, 0);
             }
 
-            _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);
-            _cl.SetPipeline(_graphicsPipeline);
-            _cl.SetGraphicsResourceSet(0, _graphicsSet);
-            _cl.Draw(3);
-            _cl.End();
-            _gd.SubmitCommands(_cl);
-            _gd.SwapBuffers();
+            _commandList.SetFramebuffer(_graphicsDevice.MainSwapchain.Framebuffer);
+            _commandList.SetPipeline(_graphicsPipeline);
+            _commandList.SetGraphicsResourceSet(0, _graphicsSet);
+            _commandList.Draw(3);
+            _commandList.End();
+            _graphicsDevice.SubmitCommands(_commandList);
+            _graphicsDevice.SwapBuffers();
         }
 
         private void CreateDeviceResources()
         {
-            ResourceFactory factory = _gd.ResourceFactory;
-            _cl = factory.CreateCommandList();
+            ResourceFactory factory = _graphicsDevice.ResourceFactory;
+            _commandList = factory.CreateCommandList();
             _transferTex = factory.CreateTexture(
                 TextureDescription.Texture2D(Width, Height, 1, 1, PixelFormat.R32_G32_B32_A32_Float, TextureUsage.Sampled | TextureUsage.Storage));
             _texView = factory.CreateTextureView(_transferTex);
@@ -137,7 +146,7 @@ namespace Firefly
                 new ResourceLayoutElementDescription("SourceTex", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                 new ResourceLayoutElementDescription("SourceSampler", ResourceKind.Sampler, ShaderStages.Fragment)));
 
-            _graphicsSet = factory.CreateResourceSet(new ResourceSetDescription(graphicsLayout, _texView, _gd.LinearSampler));
+            _graphicsSet = factory.CreateResourceSet(new ResourceSetDescription(graphicsLayout, _texView, _graphicsDevice.LinearSampler));
 
             _graphicsPipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
                 BlendStateDescription.SingleOverrideBlend,
@@ -152,13 +161,13 @@ namespace Firefly
                         factory.CreateShader(new ShaderDescription(ShaderStages.Fragment, LoadShaderBytes("FramebufferBlitter-fragment"), "FS"))
                     }),
                 graphicsLayout,
-                _gd.MainSwapchain.Framebuffer.OutputDescription));
+                _graphicsDevice.MainSwapchain.Framebuffer.OutputDescription));
         }
 
         private byte[] LoadShaderBytes(string name)
         {
             string extension;
-            switch (_gd.BackendType)
+            switch (_graphicsDevice.BackendType)
             {
                 case GraphicsBackend.Direct3D11:
                     extension = "hlsl.bytes";
@@ -178,7 +187,7 @@ namespace Firefly
                 default: throw new InvalidOperationException();
             }
 
-            return File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Shaders", $"{name}.{extension}"));
+            return File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "BlitterShader", $"{name}.{extension}"));
         }
     }
 }
