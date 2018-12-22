@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
@@ -22,34 +23,61 @@ namespace ShaderGen
         VertexShaderName,
         FragmentShaderName,
 
+        CaseCode,
         LerpCode,
         ToScreenCode,
     }
 
     public class ShaderGenerator
     {
-        static ShaderInformation[] _shaderInformation;
-        static string[] _processedCode;
-        static Assembly[] _compiledShaders;
-        public static DrawDelegate[] DrawDelegates;
+        private static readonly string[] _patterns;
 
-        public delegate void DrawDelegate(Entity entity);
+        public static Dictionary<string, DelegateCollection> DelegateCollections = new Dictionary<string, DelegateCollection>();
+        public static Dictionary<string, ShaderInformation> ShaderInformation = new Dictionary<string, ShaderInformation>();
+        private static string[] _processedCode;
+        private static Assembly[] _compiledShaders;
+
+        static ShaderGenerator()
+        {
+            _patterns = new[]
+            {
+                "__CreateVSInputStruct1__",
+                "__CreateVSInputStruct2__",
+                "__CreateVSInputStruct3__",
+                "__VSOutputType__",
+                "__FSOutputType__",
+                "__ShaderName__",
+                "__VertexShaderName__",
+                "__FragmentShaderName__",
+                "__CaseCode__",
+                "__LerpCode__",
+                "__ToScreenCode__",
+            };
+        }
 
         public static bool CompleShader(List<string> path)
         {
             _processedCode = new string[path.Count];
-            _shaderInformation = new ShaderInformation[path.Count];
             _compiledShaders = new Assembly[path.Count];
-            DrawDelegates = new DrawDelegate[path.Count];
-            for (int i = 0; i < _shaderInformation.Length; i++)
+            for (int i = 0; i < path.Count; i++)
             {
-                _shaderInformation[i] = new ShaderInformation(path[i]);
-                _processedCode[i] = InsertCodeToFile(@"Model\ShaderControler.cs", _shaderInformation[i]);
-                _compiledShaders[i] = ShaderCompiler.Compile(new[] {"Firefly.dll", "FireflyUtility.dll" }, 
-                    _shaderInformation[i].ShaderName, _processedCode[i], File.ReadAllText(path[i]));
+                ShaderInformation information = new ShaderInformation(path[i]);
+                ShaderInformation.Add(information.ShaderName, information);
+                _processedCode[i] = InsertCodeToFile(@"Model\ShaderControler.cs", information);
+                _compiledShaders[i] = ShaderCompiler.Compile(new[] { "Firefly.dll", "FireflyUtility.dll" },
+                    information.ShaderName, _processedCode[i], File.ReadAllText(path[i]));
                 //Console.WriteLine(_processedCode[i]);
-                DrawDelegates[i] = 
-                    (DrawDelegate)_compiledShaders[i].GetType("ShaderControler").GetMethod("Draw").CreateDelegate(typeof(DrawDelegate));
+
+                Type type = _compiledShaders[i].GetType("ShaderControler");
+                DelegateCollection collection = new DelegateCollection
+                {
+                    Name = information.ShaderName,
+                    Draw = (DrawDelegate)type.GetMethod("Draw").CreateDelegate(typeof(DrawDelegate)),
+                    GetShader = (GetShaderDelegate)type.GetMethod("GetNewShader").CreateDelegate(typeof(GetShaderDelegate)),
+                    SetShader = (SetShaderDelegate)type.GetMethod("SetShader").CreateDelegate(typeof(SetShaderDelegate)),
+                    SetField = (SetFieldDelegate)type.GetMethod("SetField").CreateDelegate(typeof(SetFieldDelegate))
+                };
+                DelegateCollections.Add(collection.Name, collection);
             }
             return true;
         }
@@ -57,56 +85,38 @@ namespace ShaderGen
         private static string InsertCodeToFile(string name, ShaderInformation information)
         {
             string code = File.ReadAllText(name);
-            string pattern = "__CreateVSInputStruct1__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.CreateVSInputStruct1, information));
-            pattern = "__CreateVSInputStruct2__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.CreateVSInputStruct2, information));
-            pattern = "__CreateVSInputStruct3__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.CreateVSInputStruct3, information));
-            pattern = "__VSOutputType__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.VSOutputType, information));
-            pattern = "__FSOutputType__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.FSOutputType, information));
-            pattern = "__VertexShaderName__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.VertexShaderName, information));
-            pattern = "__FragmentShaderName__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.FragmentShaderName, information));
-            pattern = "__ShaderName__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.ShaderName, information));
-            pattern = "__LerpCode__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.LerpCode, information));
-            pattern = "__ToScreenCode__";
-            code = Regex.Replace(code, pattern, GetCode(InsertType.ToScreenCode, information));
+            for (int i = 0; i < _patterns.Length; i++)
+                code = Regex.Replace(code, _patterns[i], GetCode((InsertType)i, information));
             return code;
         }
 
         private static string GetCode(InsertType type, ShaderInformation information)
         {
-            string code;
+            string code = "";
             switch (type)
             {
                 case InsertType.CreateVSInputStruct1:
                     code = $"{information.VSInputType} vi1 = new {information.VSInputType}(){{";
-                    foreach (KeyValuePair<string, string> item in information.VSInputFields)
-                        if (item.Key == "Position") code += "Position = v1.Point,";
-                        else if (item.Key == "Color") code += "Color = v1.Color,";
-                        else code += $"{item.Key} = new {item.Value}(),";
+                    foreach (var (Name, Type) in information.VSInputFields)
+                        if (Name == "Position") code += "Position = v1.Point,";
+                        else if (Name == "Color") code += "Color = v1.Color,";
+                        else code += $"{Name} = new {type}(),";
                     code += "};";
                     return code;
                 case InsertType.CreateVSInputStruct2:
                     code = $"{information.VSInputType} vi2 = new {information.VSInputType}(){{";
-                    foreach (KeyValuePair<string, string> item in information.VSInputFields)
-                        if (item.Key == "Position") code += "Position = v2.Point,";
-                        else if (item.Key == "Color") code += "Color = v2.Color,";
-                        else code += $"{item.Key} = new {item.Value}(),";
+                    foreach (var (Name, Type) in information.VSInputFields)
+                        if (Name == "Position") code += "Position = v2.Point,";
+                        else if (Name == "Color") code += "Color = v2.Color,";
+                        else code += $"{Name} = new {type}(),";
                     code += "};";
                     return code;
                 case InsertType.CreateVSInputStruct3:
                     code = $"{information.VSInputType} vi3 = new {information.VSInputType}(){{";
-                    foreach (KeyValuePair<string, string> item in information.VSInputFields)
-                        if (item.Key == "Position") code += "Position = v3.Point,";
-                        else if (item.Key == "Color") code += "Color = v3.Color,";
-                        else code += $"{item.Key} = new {item.Value}(),";
+                    foreach (var (Name, Type) in information.VSInputFields)
+                        if (Name == "Position") code += "Position = v3.Point,";
+                        else if (Name == "Color") code += "Color = v3.Color,";
+                        else code += $"{Name} = new {type}(),";
                     code += "};";
                     return code;
                 case InsertType.VSOutputType:
@@ -119,16 +129,20 @@ namespace ShaderGen
                     return information.VertexShaderName;
                 case InsertType.FragmentShaderName:
                     return information.FragmentShaderName;
+                case InsertType.CaseCode:
+                    foreach (KeyValuePair<string, string> item in information.ShaderFields)
+                        code += $"case \"{item.Key}\": Shader.{item.Key} = ({item.Value})value; break;";
+                    return code;
                 case InsertType.LerpCode:
                     code = $"return new {information.VSOutputType}(){{";
-                    foreach (KeyValuePair<string, string> item in information.VSOutputFields)
-                        code += $"{item.Key} = {(item.Value == "float" ? "" : item.Value + ".")}Lerp(a.{item.Key}, b.{item.Key}, t),";
+                    foreach (var (Name, Type) in information.VSOutputFields)
+                        code += $"{Name} = {(Type == "float" ? "" : Type + ".")}Lerp(a.{Name}, b.{Name}, t),";
                     code += "};";
                     return code;
                 case InsertType.ToScreenCode:
                     code = $"return new {information.VSOutputType}(){{";
-                    foreach (KeyValuePair<string, string> item in information.VSOutputFields)
-                        code += $"{item.Key} = {(item.Key == "Position" ? "ToScreen(pos.Position)" : "pos." + item.Key)},";
+                    foreach (var (Name, Type) in information.VSOutputFields)
+                        code += $"{Name} = {(Name == "Position" ? "ToScreen(pos.Position)" : "pos." + Name)},";
                     code += "};";
                     return code;
                 default:
@@ -136,7 +150,5 @@ namespace ShaderGen
             }
             return null;
         }
-
-
     }
 }

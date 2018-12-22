@@ -1,0 +1,10 @@
+{
+    "Name": "Scene1",
+    "Camera": {
+        "Position": {"X": 0, "Y": 0, "Z": 0},
+        "Rotation": {"X": 0, "Y": 0, "Z": 0}
+    },
+    "Entities": [
+        "cube"
+    ]
+}

@@ -11,6 +11,8 @@ namespace ShaderLib
         public const float TwoPi = 6.283185307179586476925286766559f;
         public static float Range(float v, float min, float max) => v <= min ? min :
             v >= max ? max : v;
+        public static int Range(int v, int min, int max) => v <= min ? min :
+            v >= max ? max : v;
 
         public static float Min(float d1, float d2) => d1 > d2 ? d2 : d1;
 

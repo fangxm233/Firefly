@@ -1,23 +1,16 @@
-﻿using System;
-using Microsoft.CSharp;
-using System.CodeDom.Compiler;
-using System.Reflection;
+﻿using ShaderLib.Attributes;
+using System;
 using System.Collections.Generic;
-using ShaderLib.Attributes;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Emit;
 using System.IO;
-using System.Runtime.Loader;
-using Microsoft.Extensions.DependencyModel;
-using System.Linq;
+using System.Reflection;
 
 namespace ShaderGen
 {
-    class ShaderInformation
+    public class ShaderInformation
     {
         public string ShaderName, VSInputType, VSOutputType, FSOutputType, VertexShaderName, FragmentShaderName;
-        public KeyValuePair<string, string>[] VSInputFields, VSOutputFields, FSOutputFields;
+        public (string Name, string Type)[] VSInputFields, VSOutputFields, FSOutputFields;
+        public Dictionary<string, string> ShaderFields = new Dictionary<string, string>();
 
         public ShaderInformation(string path)
         {
@@ -33,27 +26,30 @@ namespace ShaderGen
                     {
                         case "ShaderLib.Attributes." + nameof(ShaderAttribute):
                             ShaderName = item.Name;
+                            fields = item.GetFields();
+                            for (int i = 0; i < fields.Length; i++)
+                                ShaderFields.Add(fields[i].Name, fields[i].FieldType.Name);
                             break;
                         case "ShaderLib.Attributes." + nameof(VertexInputAttribute):
                             VSInputType = item.Name;
                             fields = item.GetFields();
-                            VSInputFields = new KeyValuePair<string, string>[fields.Length];
+                            VSInputFields = new (string Name, string Type)[fields.Length];
                             for (int i = 0; i < VSInputFields.Length; i++)
-                                VSInputFields[i] = new KeyValuePair<string, string>(fields[i].Name, fields[i].FieldType.Name);
+                                VSInputFields[i] = (fields[i].Name, fields[i].FieldType.Name);
                             break;
                         case "ShaderLib.Attributes." + nameof(VertexOutputAttribute):
                             VSOutputType = item.Name;
                             fields = item.GetFields();
-                            VSOutputFields = new KeyValuePair<string, string>[fields.Length];
+                            VSOutputFields = new (string Name, string Type)[fields.Length];
                             for (int i = 0; i < VSOutputFields.Length; i++)
-                                VSOutputFields[i] = new KeyValuePair<string, string>(fields[i].Name, fields[i].FieldType.Name);
+                                VSOutputFields[i] = (fields[i].Name, fields[i].FieldType.Name);
                             break;
                         case "ShaderLib.Attributes." + nameof(FragmentOutputAttribute):
                             FSOutputType = item.Name;
                             fields = item.GetFields();
-                            FSOutputFields = new KeyValuePair<string, string>[fields.Length];
+                            FSOutputFields = new (string Name, string Type)[fields.Length];
                             for (int i = 0; i < FSOutputFields.Length; i++)
-                                FSOutputFields[i] = new KeyValuePair<string, string>(fields[i].Name, fields[i].FieldType.Name);
+                                FSOutputFields[i] = (fields[i].Name, fields[i].FieldType.Name);
                             break;
                         default:
                             break;

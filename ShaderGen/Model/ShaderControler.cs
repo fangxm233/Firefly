@@ -2,11 +2,18 @@
 using FireflyUtility.Structure;
 using Firefly;
 using Firefly.Render;
+using ShaderLib;
 using System.Numerics;
 using System;
 
 public class ShaderControler
 {
+    public static __ShaderName__ Shader;
+
+    public static object GetNewShader() => new __ShaderName__();
+
+    public static void SetShader(object shader) => Shader = (__ShaderName__)shader;
+
     public static void Draw(Entity entity)
     {
         entity.CalculateMatrix();
@@ -23,14 +30,13 @@ public class ShaderControler
 
     private static void DrawTriangle(Vertex v1, Vertex v2, Vertex v3)
     {
-        __ShaderName__ shader = new __ShaderName__();
         //调用顶点着色shader
         __CreateVSInputStruct1__
-        __VSOutputType__ p1 = shader.__VertexShaderName__(vi1);
+        __VSOutputType__ p1 = Shader.__VertexShaderName__(vi1);
         __CreateVSInputStruct2__
-        __VSOutputType__ p2 = shader.__VertexShaderName__(vi2);
+        __VSOutputType__ p2 = Shader.__VertexShaderName__(vi2);
         __CreateVSInputStruct3__
-        __VSOutputType__ p3 = shader.__VertexShaderName__(vi3);
+        __VSOutputType__ p3 = Shader.__VertexShaderName__(vi3);
 
         p1 = ToScreen(p1);
         p2 = ToScreen(p2);
@@ -40,35 +46,36 @@ public class ShaderControler
         //排序，并调用填充函数
         Sort(ref p1, ref p2, ref p3);
         if (p2.Position.Y == p3.Position.Y)
-            FillFlatTriangle(p1, p2, p3, shader, false);
+            FillFlatTriangle(p1, p2, p3, false);
         else if (p1.Position.Y == p2.Position.Y)
-            FillFlatTriangle(p3, p1, p2, shader, true);
+            FillFlatTriangle(p3, p1, p2, true);
         else
         {
             float t = (p2.Position.Y - p1.Position.Y) / (p3.Position.Y - p1.Position.Y);
             __VSOutputType__ p4 = Lerp(p1, p3, t);
-            FillFlatTriangle(p1, p2, p4, shader, false);
-            FillFlatTriangle(p3, p2, p4, shader, true);
+            FillFlatTriangle(p1, p2, p4, false);
+            FillFlatTriangle(p3, p2, p4, true);
         }
     }
 
-    private static void FillFlatTriangle(__VSOutputType__ v1, __VSOutputType__ v2, __VSOutputType__ v3, __ShaderName__ shader, bool isFlatBottom)
+    private static void FillFlatTriangle(__VSOutputType__ v1, __VSOutputType__ v2, __VSOutputType__ v3, bool isFlatBottom)
     {
         if (isFlatBottom)
             for (float scanlineY = v2.Position.Y; scanlineY <= v1.Position.Y; scanlineY++)
             {
                 float t = (scanlineY - v2.Position.Y) / (v1.Position.Y - v2.Position.Y);
-                DrawFlatLine(Lerp(v1, v2, t), Lerp(v1, v3, t), shader);
+                DrawFlatLine(Lerp(v1, v2, t), Lerp(v1, v3, t));
             }
         else
             for (float scanlineY = v1.Position.Y; scanlineY <= v2.Position.Y; scanlineY++)
             {
                 float t = (scanlineY - v1.Position.Y) / (v2.Position.Y - v1.Position.Y);
-                DrawFlatLine(Lerp(v1, v2, t), Lerp(v1, v3, t), shader);
+                DrawFlatLine(Lerp(v1, v2, t), Lerp(v1, v3, t));
             }
+        DrawFlatLine(v2,v3);
     }
 
-    private static void DrawFlatLine(__VSOutputType__ v1, __VSOutputType__ v2, __ShaderName__ shader)
+    private static void DrawFlatLine(__VSOutputType__ v1, __VSOutputType__ v2)
     {
         if (v1.Position.X > v2.Position.X) Swap(ref v1, ref v2);
         float x0 = v1.Position.X;
@@ -79,8 +86,10 @@ public class ShaderControler
         //Console.WriteLine($"dx: {dx}");
         for (int i = (int)x0; i <= x1; i++)
         {
-            __FSOutputType__ o = shader.__FragmentShaderName__(Lerp(v1, v2, (i - x0) / dx));
-            Canvas.SetPixel(i, (int)(v1.Position.Y /*+ 0.5f*/), o.Color);
+            if(float.IsNaN((i - x0) / dx))
+                Console.WriteLine((i - x0) / dx);
+            __FSOutputType__ o = Shader.__FragmentShaderName__(Lerp(v1, v2, (i - x0) / dx));
+            Canvas.SetPixel(i, (int)(v1.Position.Y), o.Color);
         }
     }
 
@@ -96,6 +105,10 @@ public class ShaderControler
 
     private static __VSOutputType__ Lerp(__VSOutputType__ a, __VSOutputType__ b, float t)
     {
+        if (t <= 0)
+            return a;
+        if (t >= 1)
+            return b;
         __LerpCode__
     }
 
@@ -120,5 +133,13 @@ public class ShaderControler
         if (v1.Position.Y > v2.Position.Y) Swap(ref v1, ref v2);
         if (v2.Position.Y > v3.Position.Y) Swap(ref v2, ref v3);
         if (v1.Position.Y > v2.Position.Y) Swap(ref v1, ref v2);
+    }
+
+    public static void SetField(string name, object value)
+    {
+        switch (name)
+        {
+            __CaseCode__
+        }
     }
 }

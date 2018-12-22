@@ -139,7 +139,7 @@ namespace Firefly.Render
             Vector3 v1 = p2 - p1;
             Vector3 v2 = p3 - p2;
             Vector3 normal = Vector3.Cross(v1, v2);
-            Vector3 view_dir = p1 - Renderer.Camera.Position;
+            Vector3 view_dir = p1 - Renderer.CurrentScene.Camera.Position;
             return Vector3.Dot(normal, view_dir) > 0;
         }
 

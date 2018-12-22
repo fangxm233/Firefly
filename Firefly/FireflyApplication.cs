@@ -10,6 +10,7 @@ using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 using ShaderGen;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Firefly
 {
@@ -33,12 +34,25 @@ namespace Firefly
 
         public void Run()
         {
+            _buff = new RgbaFloat[Width * Height];
+            _color = new Color32(0, 0, 0);
+            Renderer.InitRender(_color, _buff, RenderType.GouraudShading);
+            Console.Write("加载场景:Scene1...");
+            Renderer.LoadScene("Scene1");
+            Console.WriteLine("完成");
+
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            string path = @"Shader\TestShader.cs";
-            ShaderGenerator.CompleShader(new System.Collections.Generic.List<string>() { path });
+            List<string> paths = new List<string>();
+            foreach (KeyValuePair<string, Material> item in Renderer.Materials)
+                paths.Add($"Shaders/{item.Value.ShaderName}.cs");
+            ShaderGenerator.CompleShader(paths);
             stopwatch.Stop();
             Console.WriteLine($"Shader编译完成，耗时: {stopwatch.ElapsedMilliseconds} 毫秒");
+
+            Renderer.DelegateCollections = ShaderGenerator.DelegateCollections;
+            Renderer.ShaderInformation = ShaderGenerator.ShaderInformation;
+            Renderer.InitMaterials();
 
             GraphicsBackend backend = VeldridStartup.GetPlatformDefaultBackend();
 
@@ -50,38 +64,33 @@ namespace Firefly
                 out _graphicsDevice);
             CreateDeviceResources();
 
-            _buff = new RgbaFloat[Width * Height];
-            _color = new Color32(0, 0, 0);
-            Renderer.StartRender(_color, _buff, RenderType.GouraudShading);
-
-            Renderer.Camera = new Camera();
-            Renderer.Entities = new[]{
-                new Entity(new Vector3(0, 0, 2), new Vector3(5.980089f, 5.980089f, 5.980089f), new Mesh(new []
-                {
-                    new Vertex(new Vector3(-0.5f , 0.5f , -0.5f), Color.FromArgb(255, 82, 188)),
-                    new Vertex(new Vector3(0.5f , 0.5f , -0.5f), Color.FromArgb(82, 212, 255)),
-                    new Vertex(new Vector3(-0.5f , -0.5f , -0.5f), Color.FromArgb(82, 255, 94)),
-                    new Vertex(new Vector3(0.5f , -0.5f , -0.5f), Color.FromArgb(255, 237, 82)),
-                    new Vertex(new Vector3(-0.5f , 0.5f , 0.5f), Color.FromArgb(255, 237, 82)),
-                    new Vertex(new Vector3(0.5f , 0.5f , 0.5f), Color.FromArgb(82, 255, 94)),
-                    new Vertex(new Vector3(-0.5f , -0.5f , 0.5f), Color.FromArgb(82, 212, 255)),
-                    new Vertex(new Vector3(0.5f , -0.5f , 0.5f), Color.FromArgb(255, 82, 188))
-                }, new int[]
-                {
-                    0, 1, 2,
-                    3, 2, 1,
-                    4, 6, 5,
-                    7, 5, 6,
-                    4, 0, 6,
-                    2, 6, 0,
-                    1, 5, 3,
-                    7, 3, 5,
-                    4, 5, 0,
-                    1, 0, 5,
-                    2, 3, 6,
-                    7, 6, 3,
-                }))
-            };
+            //Renderer.CurrentScene.Camera = new Camera();
+            //Renderer.CurrentScene.Entities = new Dictionary<string, Entity>() {
+            //    {"cube", new Entity(new Vector3(0, 0, 2), new Vector3(5.980089f, 5.980089f, 5.980089f), 
+            //    new Mesh(new [] {
+            //        new Vertex(new Vector3(-0.5f , 0.5f , -0.5f), Color.FromArgb(255, 82, 188)),
+            //        new Vertex(new Vector3(0.5f , 0.5f , -0.5f), Color.FromArgb(82, 212, 255)),
+            //        new Vertex(new Vector3(-0.5f , -0.5f , -0.5f), Color.FromArgb(82, 255, 94)),
+            //        new Vertex(new Vector3(0.5f , -0.5f , -0.5f), Color.FromArgb(255, 237, 82)),
+            //        new Vertex(new Vector3(-0.5f , 0.5f , 0.5f), Color.FromArgb(255, 237, 82)),
+            //        new Vertex(new Vector3(0.5f , 0.5f , 0.5f), Color.FromArgb(82, 255, 94)),
+            //        new Vertex(new Vector3(-0.5f , -0.5f , 0.5f), Color.FromArgb(82, 212, 255)),
+            //        new Vertex(new Vector3(0.5f , -0.5f , 0.5f), Color.FromArgb(255, 82, 188))
+            //    }, new int[] {
+            //        0, 1, 2,
+            //        3, 2, 1,
+            //        4, 6, 5,
+            //        7, 5, 6,
+            //        4, 0, 6,
+            //        2, 6, 0,
+            //        1, 5, 3,
+            //        7, 3, 5,
+            //        4, 5, 0,
+            //        1, 0, 5,
+            //        2, 3, 6,
+            //        7, 6, 3,
+            //    }))}
+            //};
 
             Timer timer1 = new Timer
             {
@@ -98,8 +107,8 @@ namespace Firefly
                 {
                     _buff[i] = new RgbaFloat(1, 1, 1, 1);
                 }
-                //System.Threading.Thread.Sleep(10);
                 RenderFrame();
+                //System.Threading.Thread.Sleep(10000);
             }
 
             _graphicsDevice.Dispose();
@@ -117,7 +126,7 @@ namespace Firefly
             _frameCount++;
             _commandList.Begin();
 
-            Renderer.Entities[0].Rotation += new Vector3(0.005f, 0.005f, 0.005f);
+            Renderer.CurrentScene.Entities["cube"].Rotation += new Vector3(0.005f, 0.005f, 0.005f);
             Renderer.Draw();
 
             fixed (RgbaFloat* pixelDataPtr = _buff)

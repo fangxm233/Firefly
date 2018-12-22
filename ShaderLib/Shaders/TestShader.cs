@@ -3,8 +3,10 @@ using ShaderLib.Attributes;
 using System.Numerics;
 
 [Shader]
-class TestShader
+public class TestShader
 {
+    public Texture Tex;
+
     [VertexShader]
     public VSOutput VS(VSInput input)
     {
@@ -23,21 +25,21 @@ class TestShader
 }
 
 [VertexInput]
-struct VSInput
+public struct VSInput
 {
     public Vector3 Position;
     public Vector4 Color;
 }
 
 [VertexOutput]
-struct VSOutput
+public struct VSOutput
 {
     public Vector4 Position;
     public Vector4 Color;
 }
 
 [FragmentOutput]
-struct FSOutput
+public struct FSOutput
 {
     public Vector4 Color;
 }

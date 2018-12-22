@@ -2,8 +2,11 @@
 {
     public class Mesh
     {
+        public string Name;
         public Vertex[] Vertices;
         public int[] Triangles;
+
+        public Mesh() { }
 
         public Mesh(Vertex[] vertices, int[] triangles)
         {

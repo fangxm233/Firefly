@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FireflyUtility.Math;
 using FireflyUtility.Structure;
-using FireflyUtility.Math;
+using System.Numerics;
 
 namespace FireflyUtility.Renderable
 {
     public class Entity
     {
-        public Vector3 Position, PositionToCamera, Rotation, RotationToCamera;
+        public string Name;
+        public Vector3 Position, Rotation;
         public Mesh Mesh;
+        public Material Material;
 
         private Matrix4x4 _matrix;
+        
+        public Entity() { }
 
         public Entity(Vector3 position, Vector3 rotation, Mesh mesh)
         {
             Position = position;
-            PositionToCamera = position;
             Rotation = rotation;
-            RotationToCamera = rotation;
             Mesh = mesh;
         }
 
