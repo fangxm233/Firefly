@@ -12,6 +12,7 @@ namespace Firefly
     public class ResourceLoader
     {
         public static List<(string MaterialName, JProperty prop)> MaterialInputs = new List<(string MaterialName, JProperty prop)>();
+        private static Dictionary<string, Material> _materials = new Dictionary<string, Material>();
 
         public static Scene LoadScene(string name)
         {
@@ -34,11 +35,12 @@ namespace Firefly
         public static Entity LoadEntity(string name)
         {
             JObject json = JObject.Parse(File.ReadAllText($"Entities/{name}.json"));
+            string mName = json["Material"].ToString();
             return new Entity 
             {
                 Name = json["Name"].ToString(),
                 Mesh = LoadMesh(json["Mesh"].ToString()),
-                Material = LoadMaterial(json["Material"].ToString()),
+                Material = _materials.ContainsKey(mName) ? _materials[mName] : LoadMaterial(mName),
                 Position = GetVector3(json["Position"]),
                 Rotation = GetVector3(json["Rotation"])
             };
@@ -54,11 +56,13 @@ namespace Firefly
             foreach (JProperty item in json.Properties())
                 if (item.Name != "Name" && item.Name != "Shader")
                     MaterialInputs.Add((name, item));
-            return new Material 
+            Material m = new Material 
             {
                 Name = json["Name"].ToString(),
                 ShaderName = json["Shader"].ToString()
             };
+            _materials.Add(m.Name, m);
+            return m;
         }
 
         public static Mesh LoadMesh(string name)

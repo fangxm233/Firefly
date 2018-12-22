@@ -36,6 +36,7 @@ namespace Firefly
         {
             _buff = new RgbaFloat[Width * Height];
             _color = new Color32(0, 0, 0);
+
             Renderer.InitRender(_color, _buff, RenderType.GouraudShading);
             Console.Write("加载场景:Scene1...");
             Renderer.LoadScene("Scene1");
@@ -63,7 +64,7 @@ namespace Firefly
                 out _window,
                 out _graphicsDevice);
             CreateDeviceResources();
-
+            
             //Renderer.CurrentScene.Camera = new Camera();
             //Renderer.CurrentScene.Entities = new Dictionary<string, Entity>() {
             //    {"cube", new Entity(new Vector3(0, 0, 2), new Vector3(5.980089f, 5.980089f, 5.980089f), 

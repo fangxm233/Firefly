@@ -14,7 +14,8 @@ namespace FireflyUtility.Structure
         {
             Dictionary<string, Material> materials = new Dictionary<string, Material>();
             foreach (KeyValuePair<string, Entity> item in Entities)
-                materials.Add(item.Value.Material.Name, item.Value.Material);
+                if (!materials.ContainsKey(item.Value.Material.Name))
+                    materials.Add(item.Value.Material.Name, item.Value.Material);
             return materials;
         }
     }

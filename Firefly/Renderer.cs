@@ -29,7 +29,7 @@ namespace Firefly
         public static Dictionary<string, ShaderInformation> ShaderInformation;
         public static Scene CurrentScene;
 
-        private static readonly List<(string MaterialName, string FieldName, object Value)> _commandQueue =
+        private static List<(string MaterialName, string FieldName, object Value)> _commandQueue =
             new List<(string MaterialName, string FieldName, object Value)>();
         private static readonly Random _random = new Random();
 
@@ -94,6 +94,7 @@ namespace Firefly
                 DelegateCollection collection = DelegateCollections[Materials[MaterialName].ShaderName];
                 collection.SetShader.Invoke(Materials[MaterialName].Shader);
                 collection.SetField.Invoke(FieldName, Value);
+                _commandQueue = new List<(string MaterialName, string FieldName, object Value)>();
             }
             foreach (KeyValuePair<string, Entity> item in CurrentScene.Entities)
             {
