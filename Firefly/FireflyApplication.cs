@@ -106,10 +106,10 @@ namespace Firefly
                 if (!_window.Exists) { break; }
                 for (int i = 0; i < _buff.Length; i++)
                 {
-                    _buff[i] = new RgbaFloat(1, 1, 1, 1);
+                    _buff[i] = new RgbaFloat();
                 }
                 RenderFrame();
-                //System.Threading.Thread.Sleep(10000);
+                //System.Threading.Thread.Sleep(10);
             }
 
             _graphicsDevice.Dispose();
@@ -127,13 +127,11 @@ namespace Firefly
             _frameCount++;
             _commandList.Begin();
 
-            Renderer.CurrentScene.Entities["cube"].Rotation += new Vector3(0.005f, 0.005f, 0.005f);
+            Renderer.CurrentScene.Entities["sphere"].Rotation += new Vector3(0.005f, 0.005f, 0.005f);
             Renderer.Draw();
 
             fixed (RgbaFloat* pixelDataPtr = _buff)
-            {
                 _graphicsDevice.UpdateTexture(_transferTex, (IntPtr)pixelDataPtr, Width * Height * (uint)sizeof(RgbaFloat), 0, 0, 0, Width, Height, 1, 0, 0);
-            }
 
             _commandList.SetFramebuffer(_graphicsDevice.MainSwapchain.Framebuffer);
             _commandList.SetPipeline(_graphicsPipeline);

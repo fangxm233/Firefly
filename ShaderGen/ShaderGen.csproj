@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <None Include="Model\ShaderControler.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

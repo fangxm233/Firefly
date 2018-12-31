@@ -11,4 +11,8 @@
     <PackageReference Include="Veldrid" Version="4.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ShaderLib\ShaderLib.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,7 @@
+{
+    "Name": "sphere",
+    "Mesh": "sphere",
+    "Material": "cube",
+    "Position": {"X": 0, "Y": 0, "Z": 3},
+    "Rotation": {"X": 0, "Y": 0, "Z": 0}
+}

@@ -6,10 +6,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Shaders\TexShader.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Shaders\TexShader.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Shaders\LightingShader.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Update="Shaders\TestShader.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>

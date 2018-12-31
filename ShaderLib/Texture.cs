@@ -11,7 +11,7 @@ namespace ShaderLib
 
         public Texture(string file)
         {
-            Bitmap bitmap = new Bitmap(Image.FromFile(file));
+            Bitmap bitmap = new Bitmap(Image.FromFile($"Texture/{file}"));
             Width = bitmap.Width;
             Height = bitmap.Height;
             _data = new byte[Width * Height * 3];

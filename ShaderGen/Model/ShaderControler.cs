@@ -72,7 +72,6 @@ public class ShaderControler
                 float t = (scanlineY - v1.Position.Y) / (v2.Position.Y - v1.Position.Y);
                 DrawFlatLine(Lerp(v1, v2, t), Lerp(v1, v3, t));
             }
-        DrawFlatLine(v2,v3);
     }
 
     private static void DrawFlatLine(__VSOutputType__ v1, __VSOutputType__ v2)
@@ -89,7 +88,7 @@ public class ShaderControler
             if(float.IsNaN((i - x0) / dx))
                 Console.WriteLine((i - x0) / dx);
             __FSOutputType__ o = Shader.__FragmentShaderName__(Lerp(v1, v2, (i - x0) / dx));
-            Canvas.SetPixel(i, (int)(v1.Position.Y), o.Color);
+            Canvas.SetPixel(i, (int)(v1.Position.Y + 0.5), o.Color);
         }
     }
 
@@ -99,16 +98,12 @@ public class ShaderControler
     }
 
     private static Vector4 ToScreen(Vector4 pos) =>
-                        new Vector4((pos.X * Renderer.Width / (2 * pos.W) + Renderer.Width / 2), 
-                            (pos.Y * Renderer.Height / (2 * pos.W) + Renderer.Height / 2), pos.Z, pos.W);
+                        new Vector4((int)(pos.X * Renderer.Width / (2 * pos.W) + Renderer.Width / 2), 
+                            (int)(pos.Y * Renderer.Height / (2 * pos.W) + Renderer.Height / 2), pos.Z, pos.W);
     //new Vector4((pos.X * (1 / pos.Z) * Renderer.Width + Renderer.Width / 2), (pos.Y * (1 / pos.Z) * Renderer.Height + Renderer.Height / 2), pos.Z, pos.W);
 
     private static __VSOutputType__ Lerp(__VSOutputType__ a, __VSOutputType__ b, float t)
     {
-        if (t <= 0)
-            return a;
-        if (t >= 1)
-            return b;
         __LerpCode__
     }
 

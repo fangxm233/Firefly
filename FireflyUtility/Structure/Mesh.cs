@@ -6,9 +6,7 @@
         public Vertex[] Vertices;
         public int[] Triangles;
 
-        public Mesh() { }
-
-        public Mesh(Vertex[] vertices, int[] triangles)
+        public Mesh(string Name, Vertex[] vertices, int[] triangles)
         {
             Vertices = vertices;
             Triangles = triangles;

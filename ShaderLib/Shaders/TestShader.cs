@@ -13,7 +13,7 @@ public class TestShader
         return new VSOutput()
         {
             Position = ShaderMath.Mul(Matrixs.MVP, new Vector4(input.Position, 1)),
-            Color = input.Color,
+            Color = input.Color
         };
     }
 

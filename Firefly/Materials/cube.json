@@ -1,6 +1,7 @@
 {
     "Name": "cube",
-    "Shader": "TestShader",
+    "Shader": "LightingShader",
     
-    "Tex": "Texture/tex.jpg"
+    "Gloss": 2,
+    "Spscular": {"X": 1, "Y": 1, "Z": 1, "W": 1}
 }

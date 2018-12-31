@@ -8,6 +8,7 @@ using ShaderLib;
 using FireflyUtility.Math;
 using System.Numerics;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Firefly
 {
@@ -85,6 +86,7 @@ namespace Firefly
         {
             CurrentScene = ResourceLoader.LoadScene(name);
             Materials = CurrentScene.GetNeedMaterials();
+            Lighting.AmbientColor = CurrentScene.AmbientColor;
         }
 
         public static void Draw()
@@ -94,41 +96,43 @@ namespace Firefly
                 DelegateCollection collection = DelegateCollections[Materials[MaterialName].ShaderName];
                 collection.SetShader.Invoke(Materials[MaterialName].Shader);
                 collection.SetField.Invoke(FieldName, Value);
-                _commandQueue = new List<(string MaterialName, string FieldName, object Value)>();
             }
+            _commandQueue.Clear();
             foreach (KeyValuePair<string, Entity> item in CurrentScene.Entities)
             {
                 Entity entity = item.Value;
                 Matrixs.CameraPosition = CurrentScene.Camera.Position;
-                Matrixs.CameraRotation = new Vector3(0, 0, 1);
+                Matrixs.CameraRotation = CurrentScene.Camera.Rotation;
                 Matrixs.EntityPosition = entity.Position;
                 Matrixs.EntityRotation = entity.Rotation;
                 Matrixs.Far = 500;
                 Matrixs.Near = 0.5f;
-                Matrixs.FOV = MathF.PI;
+                Matrixs.FOV = MathF.PI/2;
                 Matrixs.Aspect = Width / Height;
                 Matrixs.Width = Width;
                 Matrixs.Height = Height;
                 Matrixs.Size = 1;
                 Matrixs.CalculateMatrixs();
+                Lighting.PointLights = CurrentScene.PointLights.Select(i => i.Value).ToArray();
                 DelegateCollection collection = DelegateCollections[entity.Material.ShaderName];
                 collection.SetShader.Invoke(entity.Material.Shader);
                 collection.Draw.Invoke(entity);
-                //Mesh mesh = item.Value.Mesh;
-                //entity.CalculateMatrix();
-                //for (int j = 0; j + 2 < mesh.Triangles.Length; j += 3)
-                //{
-                //    if (!Canvas.BackFaceCulling(entity.ToWorld(mesh.GetPoint(j)).Point,
-                //        entity.ToWorld(mesh.GetPoint(j + 1)).Point,
-                //        entity.ToWorld(mesh.GetPoint(j + 2)).Point))
-                //    {
-                //        Canvas.DrawTrangle(
-                //            new VertexInt(Canvas.ToScreen(ShaderMath.Mul(Matrixs.MVP, new Vector4(mesh.GetPoint(j).Point, 1))), mesh.GetPoint(j).Color),
-                //            new VertexInt(Canvas.ToScreen(ShaderMath.Mul(Matrixs.MVP, new Vector4(mesh.GetPoint(j + 1).Point, 1))), mesh.GetPoint(j + 1).Color),
-                //            new VertexInt(Canvas.ToScreen(ShaderMath.Mul(Matrixs.MVP, new Vector4(mesh.GetPoint(j + 2).Point, 1))), mesh.GetPoint(j + 2).Color)
-                //            );
-                //    }
-                //}
+                continue;
+                Mesh mesh = item.Value.Mesh;
+                entity.CalculateMatrix();
+                for (int j = 0; j + 2 < mesh.Triangles.Length; j += 3)
+                {
+                    if (!Canvas.BackFaceCulling(entity.ToWorld(mesh.GetPoint(j)).Point,
+                        entity.ToWorld(mesh.GetPoint(j + 1)).Point,
+                        entity.ToWorld(mesh.GetPoint(j + 2)).Point))
+                    {
+                        Canvas.DrawTrangle(
+                            new VertexInt(Canvas.ToScreen(ShaderMath.Mul(Matrixs.MVP, new Vector4(mesh.GetPoint(j).Point, 1))), mesh.GetPoint(j).Color),
+                            new VertexInt(Canvas.ToScreen(ShaderMath.Mul(Matrixs.MVP, new Vector4(mesh.GetPoint(j + 1).Point, 1))), mesh.GetPoint(j + 1).Color),
+                            new VertexInt(Canvas.ToScreen(ShaderMath.Mul(Matrixs.MVP, new Vector4(mesh.GetPoint(j + 2).Point, 1))), mesh.GetPoint(j + 2).Color)
+                            );
+                    }
+                }
             }
 
             //Canvas.DrawTrangle(

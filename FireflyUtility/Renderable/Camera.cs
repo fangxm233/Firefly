@@ -9,6 +9,12 @@ namespace FireflyUtility.Renderable
 {
     public class Camera
     {
-        public Vector3 Position;
+        public Vector3 Position, Rotation;
+
+        public Camera(Vector3 position, Vector3 rotation)
+        {
+            Position = position;
+            Rotation = rotation;
+        }
     }
 }

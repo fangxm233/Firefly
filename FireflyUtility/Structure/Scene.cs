@@ -1,5 +1,7 @@
 ﻿using FireflyUtility.Renderable;
+using ShaderLib;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace FireflyUtility.Structure
 {
@@ -7,8 +9,25 @@ namespace FireflyUtility.Structure
     {
         public string Name;
         public Camera Camera;
-        public Dictionary<string, Light> Lights;
+        public Vector4 AmbientColor;
+        public DirectionalLight DirectionalLight;
+        public Dictionary<string, PointLight> PointLights;
         public Dictionary<string, Entity> Entities;
+
+        public Scene(string name, 
+            Camera camera, 
+            Vector4 ambientColor, 
+            DirectionalLight directionalLight, 
+            Dictionary<string, PointLight> pointLights, 
+            Dictionary<string, Entity> entities)
+        {
+            Name = name;
+            Camera = camera;
+            AmbientColor = ambientColor;
+            DirectionalLight = directionalLight;
+            PointLights = pointLights;
+            Entities = entities;
+        }
 
         public Dictionary<string, Material> GetNeedMaterials()
         {
