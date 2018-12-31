@@ -14,7 +14,8 @@ namespace ShaderLib
             Name = name;
             Position = position;
             Rotation = rotation;
-            Color = color;
+            Color = color * intensity;
+            Color.W = 1;
             Intensity = intensity;
             Range = range;
         }

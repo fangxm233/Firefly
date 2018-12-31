@@ -6,7 +6,7 @@ using System;
 [Shader]
 public class LightingShader
 {
-    public float Gloss;
+    public float Gloss, Diffuse;
     public Vector4 Spscular;
 
     [VertexShader]
@@ -27,9 +27,15 @@ public class LightingShader
         F o = new F();
         foreach (PointLight item in Lighting.PointLights)
         {
-            Vector3 re = Vector3.Normalize(ShaderMath.GetReflection(item.Position - v.WorldPosition, v.Normal));
+            Vector3 i = item.Position - v.WorldPosition;
+            Vector3 re = Vector3.Normalize(ShaderMath.GetReflection(i, v.Normal));
             Vector3 view = Vector3.Normalize(Matrixs.CameraPosition - v.WorldPosition);
+
+            //Phong
             o.Color += ShaderMath.ColorMul(item.Color, Spscular) * MathF.Pow(ShaderMath.Max(0, Vector3.Dot(re, view)), Gloss);
+
+            //Diffuse
+            o.Color += item.Color * Diffuse * ShaderMath.Max(0, Vector3.Dot(v.Normal, i));
         }
         o.Color += Lighting.AmbientColor;
         return o;

@@ -3,5 +3,6 @@
     "Shader": "LightingShader",
     
     "Gloss": 2,
+    "Diffuse": 0.1,
     "Spscular": {"X": 1, "Y": 1, "Z": 1, "W": 1}
 }
