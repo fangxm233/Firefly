@@ -38,9 +38,16 @@ public class ShaderControler
         __CreateVSInputStruct3__
         __VSOutputType__ p3 = Shader.__VertexShaderName__(vi3);
 
+        //转换到屏幕坐标
         p1 = ToScreen(p1);
         p2 = ToScreen(p2);
         p3 = ToScreen(p3);
+
+        //消除畸变
+        p1 = MulOnePerZ(p1);
+        p2 = MulOnePerZ(p2);
+        p3 = MulOnePerZ(p3);
+
         //Console.WriteLine($"{p1.Position} {p2.Position} {p3.Position}");
         //Console.WriteLine((p1.Position.Y - p2.Position.Y));
         //排序，并调用填充函数
@@ -76,20 +83,29 @@ public class ShaderControler
 
     private static void DrawFlatLine(__VSOutputType__ v1, __VSOutputType__ v2)
     {
+        if (v1.Position.Y > Canvas.Height || v1.Position.Y < 0) return;
         if (v1.Position.X > v2.Position.X) Swap(ref v1, ref v2);
+        if (v1.Position.X > Canvas.Width || v2.Position.X < 0) return;
         float x0 = v1.Position.X;
-        float x1 = v2.Position.X;
-        //if (x0 > x1) Swap(ref x0, ref x1);
-        float dx = x1 - x0 + 0.01f;
+        float x1 = v2.Position.X > Canvas.Width ? Canvas.Width : v2.Position.X;
+        float dx = v2.Position.X - x0 + 0.01f;
 
         //Console.WriteLine($"dx: {dx}");
         for (int i = (int)x0; i <= x1; i++)
         {
-            if(float.IsNaN((i - x0) / dx))
-                Console.WriteLine((i - x0) / dx);
-            __FSOutputType__ o = Shader.__FragmentShaderName__(Lerp(v1, v2, (i - x0) / dx));
-            Canvas.SetPixel(i, (int)(v1.Position.Y + 0.5), o.Color);
+            float t = (i - x0) / dx;
+            __VSOutputType__ v = Lerp(v1, v2, t);
+            v = MulOnePerZ(v);
+            __FSOutputType__ o = Shader.__FragmentShaderName__(v);
+            Canvas.SetPixel(i, (int)(v1.Position.Y + 0.5), o.Color, v1.Position.Z);
         }
+    }
+
+    private static __VSOutputType__ MulOnePerZ(__VSOutputType__ v)
+    {
+        v.Position.W = 1 / v.Position.W;
+        __MulOnePerZCode__
+        return v;
     }
 
     private static __VSOutputType__ ToScreen(__VSOutputType__ pos)

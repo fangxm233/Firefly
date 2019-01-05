@@ -107,6 +107,7 @@ namespace Firefly
                 for (int i = 0; i < _buff.Length; i++)
                 {
                     _buff[i] = new RgbaFloat();
+                    Renderer.DepthBuff[i] = float.MaxValue;
                 }
                 RenderFrame();
                 //System.Threading.Thread.Sleep(10);
@@ -127,7 +128,8 @@ namespace Firefly
             _frameCount++;
             _commandList.Begin();
 
-            Renderer.CurrentScene.Entities["sphere"].Rotation += new Vector3(0.005f, 0.005f, 0.005f);
+            //foreach (KeyValuePair<string, Entity> item in Renderer.CurrentScene.Entities)
+            //    item.Value.Rotation += new Vector3(1);
             Renderer.Draw();
 
             fixed (RgbaFloat* pixelDataPtr = _buff)

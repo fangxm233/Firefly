@@ -1,7 +1,7 @@
 {
     "Name": "cube",
     "Mesh": "cube",
-    "Material": "cube",
-    "Position": {"X": 0, "Y": 0, "Z": 4},
+    "Material": "standard",
+    "Position": {"X": 0, "Y": 1.5, "Z": 2.5},
     "Rotation": {"X": 0, "Y": 0, "Z": 0}
 }

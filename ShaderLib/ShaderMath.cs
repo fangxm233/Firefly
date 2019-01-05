@@ -12,7 +12,7 @@ namespace ShaderLib
 
         public static Vector3 GetReflection(Vector3 In, Vector3 Normal) => 2 * Vector3.Dot(In, Normal) * Normal - In;
 
-        public static Vector4 ColorMul(Vector4 c1, Vector4 c2) => new Vector4(c1.X * c2.X, c1.Y * c2.Y, c1.Z * c2.Z, c1.W * c2.W);
+        public static Vector4 ColorMul(Vector4 c1, Vector4 c2) => new Vector4(c1.X * c2.X, c1.Y * c2.Y, c1.Z * c2.Z, 1);
 
         #region Range
         public static float Range(float v, float min, float max) => v <= min ? min :

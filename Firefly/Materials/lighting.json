@@ -1,5 +1,5 @@
 {
-    "Name": "cube",
+    "Name": "lighting",
     "Shader": "LightingShader",
     
     "Gloss": 2,

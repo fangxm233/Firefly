@@ -66,7 +66,7 @@ namespace Firefly
             JObject json = JObject.Parse(File.ReadAllText($"Lights/{name}.json"));
             return new PointLight(json["Name"].ToString(), 
                 GetVector3(json["Position"]), 
-                GetVector3(json["Rotation"]), 
+                GetVector3(json["Rotation"]) / 360 * MathF.PI, 
                 GetVector4(json["Color"]), 
                 json["Intensity"].ToObject<float>(), 
                 json["Range"].ToObject<float>());
@@ -78,14 +78,14 @@ namespace Firefly
             string mName = json["Material"].ToString();
             return new Entity(json["Name"].ToString(), 
                 GetVector3(json["Position"]), 
-                GetVector3(json["Rotation"]), 
+                GetVector3(json["Rotation"]) / 180 * MathF.PI, 
                 LoadMesh(json["Mesh"].ToString()), 
                 _materials.ContainsKey(mName) ? _materials[mName] : LoadMaterial(mName));
         }
 
         private static Camera GetCamera(JToken token) => new Camera(
             GetVector3(token["Position"]),
-            GetVector3(token["Rotation"])
+            GetVector3(token["Rotation"]) / 180 * MathF.PI
         );
 
         public static Material LoadMaterial(string name)

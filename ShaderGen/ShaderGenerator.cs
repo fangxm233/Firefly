@@ -26,6 +26,7 @@ namespace ShaderGen
         CaseCode,
         LerpCode,
         ToScreenCode,
+        MulOnePerZCode,
     }
 
     public class ShaderGenerator
@@ -52,6 +53,7 @@ namespace ShaderGen
                 "__CaseCode__",
                 "__LerpCode__",
                 "__ToScreenCode__",
+                "__MulOnePerZCode__",
             };
         }
 
@@ -151,7 +153,12 @@ namespace ShaderGen
                         code += $"{Name} = {(Name == "Position" ? "ToScreen(pos.Position)" : "pos." + Name)},";
                     code += "};";
                     return code;
-                default:
+                case InsertType.MulOnePerZCode:
+                    foreach (var (Name, Type) in information.VSOutputFields)
+                        if (Name != "Position")
+                            code += $"v.{Name} *= v.Position.W;";
+                    return code;
+                    default:
                     break;
             }
             return null;

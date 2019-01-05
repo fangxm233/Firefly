@@ -27,8 +27,8 @@ namespace ShaderLib
 
         public Vector4 Value(Vector2 uv)
         {
-            int i = ShaderMath.Range((int)(uv.X * Width), 0, Width - 1);
-            int j = ShaderMath.Range((int)(uv.Y * Height), 0, Height - 1);
+            int j = ShaderMath.Range((int)(uv.X * Width), 0, Width - 1);
+            int i = ShaderMath.Range((int)(uv.Y * Height), 0, Height - 1);
 
             return new Vector4(
                 _data[j * 3 + Width * i * 3] / 255f,

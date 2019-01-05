@@ -67,7 +67,19 @@ namespace FireflyUtility.Math
             return new Vertex
             {
                 Color = Vector4.Lerp(a.Color, b.Color, t),
-                Point = Vector3.Lerp(a.Point, b.Point, t)
+                Point = Vector3.Lerp(a.Point, b.Point, t),
+                UV = Vector2.Lerp(a.UV, b.UV, t),
+                Normal = Vector3.Lerp(a.Normal, b.Normal, t),
+            };
+        }
+        public static Vertex4 Lerp(Vertex4 a, Vertex4 b, float t)
+        {
+            return new Vertex4
+            {
+                Color = Vector4.Lerp(a.Color, b.Color, t),
+                Point = Vector4.Lerp(a.Point, b.Point, t),
+                UV = Vector2.Lerp(a.UV, b.UV, t),
+                Normal = Vector3.Lerp(a.Normal, b.Normal, t),
             };
         }
         public static VertexInt Lerp(VertexInt a, VertexInt b, float t)

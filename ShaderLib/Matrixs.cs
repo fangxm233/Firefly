@@ -57,7 +57,7 @@ namespace ShaderLib
         private static Matrix4x4 PerspectiveFieldOfView(float fov, float aspect, float near, float far) =>
             new Matrix4x4(1 / (MathF.Tan(fov * 0.5f) * aspect), 0, 0, 0, 0, 1 / MathF.Tan(fov * 0.5f), 
                 0, 0, 0, 0, far / (far - near), 1, 0, 0, (near * far) / (near - far), 0);
-            //new Matrix4x4(MathF.Atan(fov / 2) / aspect, 0, 0, 0, 0, MathF.Atan(fov / 2), 0, 0, 
+            //new Matrix4x4(MathF.Atan(fov / 2) / aspect, 0, 0, 0, 0, MathF.Atan(fov / 2), 0, 0,
             //    0, 0, -(far + near) / (far - near), -(2 * near * far) / (far - near), 0, 0, -1, 0);
 
         private static Matrix4x4 GetOrthographic(float size, float aspect, float near, float far) =>

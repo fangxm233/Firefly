@@ -21,6 +21,7 @@ namespace Firefly
     public static class Renderer
     {
         public static RgbaFloat[] Buff;
+        public static float[] DepthBuff;
         public static Color32 Color;
         public const uint Width = FireflyApplication.Width, Height = FireflyApplication.Height;
         public static RenderType RenderType;
@@ -39,6 +40,10 @@ namespace Firefly
             Buff = buff;
             Color = color;
             RenderType = renderType;
+            DepthBuff = new float[buff.Length];
+            for (int i = 0; i < DepthBuff.Length; i++)
+                DepthBuff[i] = float.MaxValue;
+            Canvas.Tex = new ShaderLib.Texture("pink.jpg");
         }
 
         public static void InitMaterials()
@@ -126,13 +131,15 @@ namespace Firefly
                         entity.ToWorld(mesh.GetPoint(j + 1)).Point,
                         entity.ToWorld(mesh.GetPoint(j + 2)).Point))
                     {
-                        Canvas.DrawTrangle(
-                            new VertexInt(Canvas.ToScreen(ShaderMath.Mul(Matrixs.MVP, new Vector4(mesh.GetPoint(j).Point, 1))), mesh.GetPoint(j).Color),
-                            new VertexInt(Canvas.ToScreen(ShaderMath.Mul(Matrixs.MVP, new Vector4(mesh.GetPoint(j + 1).Point, 1))), mesh.GetPoint(j + 1).Color),
-                            new VertexInt(Canvas.ToScreen(ShaderMath.Mul(Matrixs.MVP, new Vector4(mesh.GetPoint(j + 2).Point, 1))), mesh.GetPoint(j + 2).Color)
-                            );
+                        Vertex4 v1 = mesh.GetPoint(j).ToVertex4(), v2 = mesh.GetPoint(j + 1).ToVertex4(), v3 = mesh.GetPoint(j + 2).ToVertex4();
+                        v1.Point = ShaderMath.Mul(Matrixs.MVP, v1.Point);
+                        v2.Point = ShaderMath.Mul(Matrixs.MVP, v2.Point);
+                        v3.Point = ShaderMath.Mul(Matrixs.MVP, v3.Point);
+                        Canvas.DrawTrangle(v1, v2, v3);
                     }
                 }
+                Console.WriteLine("渲染的三角形数:" + Canvas.TriCount);
+                Canvas.TriCount = 0;
             }
 
             //Canvas.DrawTrangle(
