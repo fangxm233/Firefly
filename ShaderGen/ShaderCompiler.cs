@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,35 +20,81 @@ namespace ShaderGen
             string attributeAsm = typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).GetTypeInfo().Assembly.Location;
             string vectorAsm = typeof(Vector3).GetTypeInfo().Assembly.Location;
             string consoleAsm = typeof(Console).GetTypeInfo().Assembly.Location;
-            SyntaxTree[] trees = new SyntaxTree[codes.Length];
-            for (int i = 0; i < codes.Length; i++)
-                trees[i] = SyntaxFactory.ParseSyntaxTree(codes[i]);
-            CSharpCompilationOptions options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+
+            Encoding encoding = Encoding.UTF8;
+
+            string assemblyName = Path.GetRandomFileName();
+            string symbolsName = Path.ChangeExtension(assemblyName, "pdb");
+
+            List<EmbeddedText> embeddedTexts = new List<EmbeddedText>();
+            List<SyntaxTree> encoded = new List<SyntaxTree>();
+
+            foreach (string code in codes)
+            {
+                string sourceCodePath = code.GetHashCode() + ".cs";
+
+                byte[] buffer = encoding.GetBytes(code);
+                SourceText sourceText = SourceText.From(buffer, buffer.Length, encoding, canBeEmbedded: true);
+
+                SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(
+                    sourceText,
+                    new CSharpParseOptions(),
+                    path: sourceCodePath);
+
+                encoded.Add(CSharpSyntaxTree.Create(syntaxTree.GetRoot() as CSharpSyntaxNode, null, sourceCodePath, encoding));
+                embeddedTexts.Add(EmbeddedText.FromSource(sourceCodePath, sourceText));
+            }
+
+            OptimizationLevel optimizationLevel = OptimizationLevel.Debug;
 #if !DEBUG
-            options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
+            optimizationLevel = OptimizationLevel.Release;
 #endif
-            CSharpCompilation compilation = CSharpCompilation.Create(name)
-                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .AddReferences(MetadataReference.CreateFromFile("ShaderLib.dll"),
-                MetadataReference.CreateFromFile(systemAsm),
-                MetadataReference.CreateFromFile(attributeAsm),
-                MetadataReference.CreateFromFile(vectorAsm),
-                MetadataReference.CreateFromFile(consoleAsm))
-                .AddSyntaxTrees(trees);
+
+            CSharpCompilation compilation = CSharpCompilation.Create(
+                assemblyName,
+                syntaxTrees: encoded,
+                references: new List<MetadataReference>
+                {
+                    MetadataReference.CreateFromFile("ShaderLib.dll"),
+                    MetadataReference.CreateFromFile(systemAsm),
+                    MetadataReference.CreateFromFile(attributeAsm),
+                    MetadataReference.CreateFromFile(vectorAsm),
+                    MetadataReference.CreateFromFile(consoleAsm)
+                },
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                    .WithOptimizationLevel(optimizationLevel)
+                    .WithPlatform(Platform.AnyCpu)
+            );
             foreach (string item in references)
                 compilation = compilation.AddReferences(MetadataReference.CreateFromFile(item));
-            string path = Path.Combine(Environment.GetEnvironmentVariable("TEMP"), codes.GetHashCode().ToString());
-            EmitResult result = compilation.Emit(path);
-            if (!result.Success)
+
+            using (MemoryStream assemblyStream = new MemoryStream())
+            using (MemoryStream symbolsStream = new MemoryStream())
             {
-                foreach (Diagnostic item in result.Diagnostics)
+                EmitOptions emitOptions = new EmitOptions(
+                        debugInformationFormat: DebugInformationFormat.PortablePdb,
+                        pdbFilePath: symbolsName);
+
+                EmitResult result = compilation.Emit(
+                    peStream: assemblyStream,
+                    pdbStream: symbolsStream,
+                    embeddedTexts: embeddedTexts,
+                    options: emitOptions);
+
+                if (!result.Success)
                 {
-                    if (item.Severity == DiagnosticSeverity.Error)
-                        Console.WriteLine(item);
+                    foreach (Diagnostic item in result.Diagnostics)
+                        if (item.Severity == DiagnosticSeverity.Error)
+                            Console.WriteLine(item);
+                    return null;
                 }
-                return null;
+
+                assemblyStream.Seek(0, SeekOrigin.Begin);
+                symbolsStream?.Seek(0, SeekOrigin.Begin);
+
+                Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(assemblyStream, symbolsStream);
+                return assembly;
             }
-            return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
         }
     }
 }

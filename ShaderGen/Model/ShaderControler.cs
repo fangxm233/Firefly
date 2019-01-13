@@ -18,7 +18,6 @@ public class ShaderControler
     {
         entity.CalculateMatrix();
         Mesh mesh = entity.Mesh;
-        //Console.WriteLine("Rotation {0}", entity.Rotation);
         for (int j = 0; j + 2 < mesh.Triangles.Length; j += 3)
         {
             if (!Canvas.BackFaceCulling(entity.ToWorld(mesh.GetPoint(j)).Point,
@@ -48,8 +47,6 @@ public class ShaderControler
         p2 = MulOnePerZ(p2);
         p3 = MulOnePerZ(p3);
 
-        //Console.WriteLine($"{p1.Position} {p2.Position} {p3.Position}");
-        //Console.WriteLine((p1.Position.Y - p2.Position.Y));
         //排序，并调用填充函数
         Sort(ref p1, ref p2, ref p3);
         if (p2.Position.Y == p3.Position.Y)
@@ -90,7 +87,6 @@ public class ShaderControler
         float x1 = v2.Position.X > Canvas.Width ? Canvas.Width : v2.Position.X;
         float dx = v2.Position.X - x0 + 0.01f;
 
-        //Console.WriteLine($"dx: {dx}");
         for (int i = (int)x0; i <= x1; i++)
         {
             float t = (i - x0) / dx;

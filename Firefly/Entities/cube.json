@@ -2,6 +2,6 @@
     "Name": "cube",
     "Mesh": "cube",
     "Material": "standard",
-    "Position": {"X": 0, "Y": 1.5, "Z": 2.5},
+    "Position": {"X": 0, "Y": 0, "Z": -3},
     "Rotation": {"X": 0, "Y": 0, "Z": 0}
 }

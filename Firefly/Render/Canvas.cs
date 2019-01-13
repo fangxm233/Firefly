@@ -42,13 +42,13 @@ namespace Firefly.Render
         private static void FillFlatTriangle(Vertex4 v1, Vertex4 v2, Vertex4 v3, bool isFlatBottom)
         {
             if (isFlatBottom)
-                for (float scanlineY = v2.Point.Y; scanlineY <= v1.Point.Y; scanlineY++)
+                for (int scanlineY = (int)v2.Point.Y; scanlineY <= v1.Point.Y; scanlineY++)
                 {
                     float t = (scanlineY - v2.Point.Y) / (v1.Point.Y - v2.Point.Y);
                     DrawFlatLine(Mathf.Lerp(v1, v2, t), Mathf.Lerp(v1, v3, t));
                 }
             else
-                for (float scanlineY = v1.Point.Y; scanlineY <= v2.Point.Y; scanlineY++)
+                for (int scanlineY = (int)v1.Point.Y; scanlineY <= v2.Point.Y; scanlineY++)
                 {
                     float t = (scanlineY - v1.Point.Y) / (v2.Point.Y - v1.Point.Y);
                     DrawFlatLine(Mathf.Lerp(v1, v2, t), Mathf.Lerp(v1, v3, t));
@@ -57,11 +57,11 @@ namespace Firefly.Render
 
         private static void DrawFlatLine(Vertex4 v1, Vertex4 v2)
         {
-            if (v1.Point.Y > Height || v1.Point.Y < 0) return;
+            if (v1.Point.Y >= Height || v1.Point.Y < 0) return;
             if (v1.Point.X > v2.Point.X) Swap(ref v1, ref v2);
-            if (v1.Point.X > Width || v2.Point.X < 0) return;
+            if (v1.Point.X >= Width || v2.Point.X < 0) return;
             float x0 = v1.Point.X;
-            float x1 = v2.Point.X > Width ? Width : v2.Point.X;
+            float x1 = v2.Point.X >= Width ? Width - 1 : v2.Point.X;
             float dx = v2.Point.X - x0 + 0.01f;
 
             for (int i = (int)(x0 < 0 ? 0 : x0); i <= x1; i++)
@@ -69,7 +69,7 @@ namespace Firefly.Render
                 float t = (i - x0) / dx;
                 Vertex4 v = Mathf.Lerp(v1, v2, t);
                 v = MulOnePerZ(v);
-                SetPixel(i, (int)(v1.Point.Y + 0.5), Tex.Value(v.UV), v.Point.Z);
+                SetPixel(i, (int)(v1.Point.Y), Tex.Value(v.UV), v.Point.Z);
             }
         }
 
@@ -124,8 +124,6 @@ namespace Firefly.Render
 
         public static void SetPixel(int x, int y, Vector4 color, float z)
         {
-            if (x < 0 || y < 0) return;
-            if (x >= Width || y >= Height) return;
             if (Renderer.DepthBuff[y * Width + x] > z)
             {
                 Renderer.DepthBuff[y * Width + x] = z;

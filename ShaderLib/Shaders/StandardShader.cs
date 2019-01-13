@@ -8,15 +8,17 @@ public class StandardShader
 {
     public float Gloss, Diffuse;
     public Vector4 Spscular;
+
     public Texture Tex;
 
     [VertexShader]
     public SSV2F VS(SSA2V a)
     {
-        Vector4 pos = ShaderMath.Mul(Matrixs.Entity2World, new Vector4(a.Position, 1));
+        Vector4 pos = ShaderMath.Mul(Matrixs.Entity2World, a.Position.XYZ1());
+        Matrix3x3 rotation = new Matrix3x3(a.Tangent, a.Bitangent, a.Normal);
         return new SSV2F
         {
-            Position = ShaderMath.Mul(Matrixs.MVP, new Vector4(a.Position, 1)),
+            Position = ShaderMath.Mul(Matrixs.MVP, a.Position.XYZ1()),
             WorldPosition = new Vector3(pos.X, pos.Y, pos.Z),
             Normal = Vector3.Normalize(ShaderMath.Mul(Matrixs.Entity2World, a.Normal)),
             UV = a.UV,
@@ -55,6 +57,8 @@ public struct SSA2V
 {
     public Vector3 Position;
     public Vector3 Normal;
+    public Vector3 Tangent;
+    public Vector3 Bitangent;
     public Vector2 UV;
 }
 

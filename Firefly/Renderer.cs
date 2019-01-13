@@ -43,7 +43,7 @@ namespace Firefly
             DepthBuff = new float[buff.Length];
             for (int i = 0; i < DepthBuff.Length; i++)
                 DepthBuff[i] = float.MaxValue;
-            Canvas.Tex = new ShaderLib.Texture("pink.jpg");
+            Canvas.Tex = new ShaderLib.Texture("box.jpg");
         }
 
         public static void InitMaterials()
@@ -59,6 +59,9 @@ namespace Firefly
                 ShaderInformation info = ShaderInformation[Materials[MaterialName].ShaderName];
                 switch (info.ShaderFields[prop.Name])
                 {
+                    case "Boolean":
+                        command.Value = prop.Value.ToObject<bool>();
+                        break;
                     case "Byte":
                         command.Value = prop.Value.ToObject<byte>();
                         break;
@@ -138,7 +141,7 @@ namespace Firefly
                         Canvas.DrawTrangle(v1, v2, v3);
                     }
                 }
-                Console.WriteLine("渲染的三角形数:" + Canvas.TriCount);
+                //Console.WriteLine("渲染的三角形数:" + Canvas.TriCount);
                 Canvas.TriCount = 0;
             }
 

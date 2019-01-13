@@ -98,35 +98,11 @@ namespace ShaderGen
             switch (type)
             {
                 case InsertType.CreateVSInputStruct1:
-                    code = $"{information.VSInputType} vi1 = new {information.VSInputType}(){{";
-                    foreach (var (Name, Type) in information.VSInputFields)
-                        if (Name == "Position") code += "Position = v1.Point,";
-                        else if (Name == "Color") code += "Color = v1.Color,";
-                        else if (Name == "Normal") code += "Normal = v1.Normal,";
-                        else if (Name == "UV") code += "UV = v1.UV,";
-                        else code += $"{Name} = new {type}(),";
-                    code += "};";
-                    return code;
+                    return CreateVSInputStruct(1, information);
                 case InsertType.CreateVSInputStruct2:
-                    code = $"{information.VSInputType} vi2 = new {information.VSInputType}(){{";
-                    foreach (var (Name, Type) in information.VSInputFields)
-                        if (Name == "Position") code += "Position = v2.Point,";
-                        else if (Name == "Color") code += "Color = v2.Color,";
-                        else if (Name == "Normal") code += "Normal = v2.Normal,";
-                        else if (Name == "UV") code += "UV = v2.UV,";
-                        else code += $"{Name} = new {type}(),";
-                    code += "};";
-                    return code;
+                    return CreateVSInputStruct(2, information);
                 case InsertType.CreateVSInputStruct3:
-                    code = $"{information.VSInputType} vi3 = new {information.VSInputType}(){{";
-                    foreach (var (Name, Type) in information.VSInputFields)
-                        if (Name == "Position") code += "Position = v3.Point,";
-                        else if (Name == "Color") code += "Color = v3.Color,";
-                        else if (Name == "Normal") code += "Normal = v3.Normal,";
-                        else if (Name == "UV") code += "UV = v3.UV,";
-                        else code += $"{Name} = new {type}(),";
-                    code += "};";
-                    return code;
+                    return CreateVSInputStruct(3, information);
                 case InsertType.VSOutputType:
                     return information.VSOutputType;
                 case InsertType.FSOutputType:
@@ -162,6 +138,21 @@ namespace ShaderGen
                     break;
             }
             return null;
+        }
+
+        private static string CreateVSInputStruct(int i, ShaderInformation information)
+        {
+            string code = $"{information.VSInputType} vi{i} = new {information.VSInputType}(){{";
+            foreach (var (Name, Type) in information.VSInputFields)
+                if (Name == "Position") code += $"Position = v{i}.Point,";
+                else if (Name == "Color") code += $"Color = v{i}.Color,";
+                else if (Name == "Normal") code += $"Normal = v{i}.Normal,";
+                else if (Name == "Tangent") code += $"Tangent = v{i}.Tangent,";
+                else if (Name == "Bitangent") code += $"Bitangent = v{i}.Bitangent,";
+                else if (Name == "UV") code += $"UV = v{i}.UV,";
+                else code += $"{Name} = new {Type}(),";
+            code += "};";
+            return code;
         }
     }
 }

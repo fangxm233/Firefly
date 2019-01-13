@@ -42,11 +42,11 @@ namespace Firefly
         public static Scene LoadScene(string name)
         {
             JObject json = JObject.Parse(File.ReadAllText($"Scenes/{name}.json"));
-            Scene scene = new Scene(json["Name"].ToString(), 
+            Scene scene = new Scene(json["Name"].ToString(),
                 GetCamera(json["Camera"]),
                 GetVector4(json["AmbientColor"]),
-                null, 
-                new Dictionary<string, PointLight>(), 
+                null,
+                new Dictionary<string, PointLight>(),
                 new Dictionary<string, Entity>());
             foreach (JToken item in (JArray)json["Entities"])
             {
@@ -64,11 +64,11 @@ namespace Firefly
         public static PointLight LoadPointLights(string name)
         {
             JObject json = JObject.Parse(File.ReadAllText($"Lights/{name}.json"));
-            return new PointLight(json["Name"].ToString(), 
-                GetVector3(json["Position"]), 
-                GetVector3(json["Rotation"]) / 360 * MathF.PI, 
-                GetVector4(json["Color"]), 
-                json["Intensity"].ToObject<float>(), 
+            return new PointLight(json["Name"].ToString(),
+                GetVector3(json["Position"]),
+                GetVector3(json["Rotation"]) / 360 * MathF.PI,
+                GetVector4(json["Color"]),
+                json["Intensity"].ToObject<float>(),
                 json["Range"].ToObject<float>());
         }
 
@@ -76,10 +76,10 @@ namespace Firefly
         {
             JObject json = JObject.Parse(File.ReadAllText($"Entities/{name}.json"));
             string mName = json["Material"].ToString();
-            return new Entity(json["Name"].ToString(), 
-                GetVector3(json["Position"]), 
-                GetVector3(json["Rotation"]) / 180 * MathF.PI, 
-                LoadMesh(json["Mesh"].ToString()), 
+            return new Entity(json["Name"].ToString(),
+                GetVector3(json["Position"]),
+                GetVector3(json["Rotation"]) / 180 * MathF.PI,
+                LoadMesh(json["Mesh"].ToString()),
                 _materials.ContainsKey(mName) ? _materials[mName] : LoadMaterial(mName));
         }
 
@@ -101,16 +101,22 @@ namespace Firefly
 
         public static Mesh LoadMesh(string name)
         {
-            BinaryReader reader = new BinaryReader(new FileStream($"Models/{name}.FireModel", FileMode.Open));
-            if (reader.ReadByte() != 233) throw new Exception("模型魔数不正确");
-            string mName = reader.ReadString();
-            Vertex[] vertices = new Vertex[reader.ReadInt32()];
-            for (int i = 0; i < vertices.Length; i++)
-                vertices[i] = ReadBinaryVertex(reader);
-            int[] triangles = new int[reader.ReadInt32() * 3];
-            for (int i = 0; i < triangles.Length; i++)
-                triangles[i] = reader.ReadInt32();
-            return new Mesh(mName, vertices, triangles);
+            using (BinaryReader reader = new BinaryReader(new FileStream($"Models/{name}.FireModel", FileMode.Open)))
+            {
+                if (reader.ReadByte() != 233) throw new Exception("模型魔数不正确");
+
+                string mName = reader.ReadString();
+
+                Vertex[] vertices = new Vertex[reader.ReadInt32()];
+                for (int i = 0; i < vertices.Length; i++)
+                    vertices[i] = ReadBinaryVertex(reader);
+
+                int[] triangles = new int[reader.ReadInt32() * 3];
+                for (int i = 0; i < triangles.Length; i++)
+                    triangles[i] = reader.ReadInt32();
+
+                return new Mesh(mName, vertices, triangles);
+            }
         }
 
         private static Vertex ReadBinaryVertex(BinaryReader reader)
@@ -127,11 +133,6 @@ namespace Firefly
             return vertex;
         }
 
-        //private static object GetValue()
-        //{
-
-        //}
-
         private static int[] GetIntArray(JArray list)
         {
             List<int> vs = new List<int>();
@@ -140,40 +141,14 @@ namespace Firefly
             return vs.ToArray();
         }
 
-        private static Vertex[] GetVertices(JArray list, bool hasNormal, bool hasUV)
-        {
-            List<Vertex> vertices = new List<Vertex>();
-            foreach (JToken item in list)
-                vertices.Add(GetVertex(item, hasNormal, hasUV));
-            return vertices.ToArray();
-        }
-
-        public static Vertex GetVertex(JToken token, bool hasNormal, bool hasUV)
-        {
-            if (hasNormal && hasUV)
-                return new Vertex(GetVector2(token["UV"]), 
-                    GetVector3(token["Position"]), 
-                    GetColor(token["Color"]), 
-                    GetVector3(token["Normal"]));
-            else if (hasNormal)
-                return new Vertex(GetVector3(token["Position"]), GetColor(token["Color"]), GetVector3(token["Normal"]));
-            else if (hasUV)
-                return new Vertex(GetVector2(token["UV"]), GetVector3(token["Position"]), GetColor(token["Color"]));
-            else
-                return new Vertex(GetVector3(token["Position"]), GetColor(token["Color"]));
-        }
-
         public static Vector2 GetVector2(JToken token) =>
             new Vector2(token["X"].ToObject<float>(), token["Y"].ToObject<float>());
 
-        public static Vector3 GetVector3(JToken token) => 
+        public static Vector3 GetVector3(JToken token) =>
             new Vector3(token["X"].ToObject<float>(), token["Y"].ToObject<float>(), token["Z"].ToObject<float>());
 
         public static Vector4 GetVector4(JToken token) =>
-            new Vector4(token["X"].ToObject<float>(), token["Y"].ToObject<float>(), 
+            new Vector4(token["X"].ToObject<float>(), token["Y"].ToObject<float>(),
                 token["Z"].ToObject<float>(), token["W"].ToObject<float>());
-
-        private static Color GetColor(JToken token) => 
-            Color.FromArgb(token["R"].ToObject<int>(), token["G"].ToObject<int>(), token["B"].ToObject<int>());
     }
 }

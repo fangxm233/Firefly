@@ -42,6 +42,7 @@ namespace Firefly
             Renderer.LoadScene("Scene1");
             Console.WriteLine("完成");
 
+            Console.Write("编译Shader...");
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             List<string> paths = new List<string>();
@@ -49,7 +50,7 @@ namespace Firefly
                 paths.Add($"Shaders/{item.Value.ShaderName}.cs");
             ShaderGenerator.CompleShader(paths);
             stopwatch.Stop();
-            Console.WriteLine($"Shader编译完成，耗时: {stopwatch.ElapsedMilliseconds} 毫秒");
+            Console.WriteLine($"完成，耗时: {stopwatch.ElapsedMilliseconds} 毫秒");
 
             Renderer.DelegateCollections = ShaderGenerator.DelegateCollections;
             Renderer.ShaderInformation = ShaderGenerator.ShaderInformation;
@@ -65,34 +66,6 @@ namespace Firefly
                 out _graphicsDevice);
             CreateDeviceResources();
             
-            //Renderer.CurrentScene.Camera = new Camera();
-            //Renderer.CurrentScene.Entities = new Dictionary<string, Entity>() {
-            //    {"cube", new Entity(new Vector3(0, 0, 2), new Vector3(5.980089f, 5.980089f, 5.980089f), 
-            //    new Mesh(new [] {
-            //        new Vertex(new Vector3(-0.5f , 0.5f , -0.5f), Color.FromArgb(255, 82, 188)),
-            //        new Vertex(new Vector3(0.5f , 0.5f , -0.5f), Color.FromArgb(82, 212, 255)),
-            //        new Vertex(new Vector3(-0.5f , -0.5f , -0.5f), Color.FromArgb(82, 255, 94)),
-            //        new Vertex(new Vector3(0.5f , -0.5f , -0.5f), Color.FromArgb(255, 237, 82)),
-            //        new Vertex(new Vector3(-0.5f , 0.5f , 0.5f), Color.FromArgb(255, 237, 82)),
-            //        new Vertex(new Vector3(0.5f , 0.5f , 0.5f), Color.FromArgb(82, 255, 94)),
-            //        new Vertex(new Vector3(-0.5f , -0.5f , 0.5f), Color.FromArgb(82, 212, 255)),
-            //        new Vertex(new Vector3(0.5f , -0.5f , 0.5f), Color.FromArgb(255, 82, 188))
-            //    }, new int[] {
-            //        0, 1, 2,
-            //        3, 2, 1,
-            //        4, 6, 5,
-            //        7, 5, 6,
-            //        4, 0, 6,
-            //        2, 6, 0,
-            //        1, 5, 3,
-            //        7, 3, 5,
-            //        4, 5, 0,
-            //        1, 0, 5,
-            //        2, 3, 6,
-            //        7, 6, 3,
-            //    }))}
-            //};
-
             Timer timer1 = new Timer
             {
                 Interval = 1000,
@@ -128,8 +101,8 @@ namespace Firefly
             _frameCount++;
             _commandList.Begin();
 
-            //foreach (KeyValuePair<string, Entity> item in Renderer.CurrentScene.Entities)
-            //    item.Value.Rotation += new Vector3(1);
+            foreach (KeyValuePair<string, Entity> item in Renderer.CurrentScene.Entities)
+                item.Value.Rotation += new Vector3(0.01f);
             Renderer.Draw();
 
             fixed (RgbaFloat* pixelDataPtr = _buff)
